@@ -1,0 +1,20 @@
+Step 1 (manual)
+
+1.1 Go into Elentra, download your Word/PDF/PPT “source-of-truth” document and note the event date/time.
+1.2 Cross-check with your master timetable or stakeholders for any special cases.
+
+
+Step 2 (semi-manual + templating)
+
+2.1 Update your Kanban board in Google Sheets (apply naming conventions, dates, lesson/year, etc.).
+2.2 In LAMS, either duplicate an existing lesson or—if brand new—go to 2.3. (this is a pain point)
+2.3 Convert your Word doc into the LAMS-template (Word → IMS/Word template → export QTI), upload the questions into LAMS, then return to 2.2 to schedule it.
+
+Step 3 (what you’ve already scripted)
+
+3.1 Back in Elentra, navigate to the correct Event, click “Add Resource,” and paste in your LAMS link (this is where Python+Selenium lives).
+3.2 Mark that row “Done” in your Kanban and hand off to a QC colleague.
+
+Step 4 (QC automation)
+
+A second user opens the same Kanban entry, double-checks all your parameters (timeframe, optional/hide flags, URL/Title/Description), then marks QC “Done.”
