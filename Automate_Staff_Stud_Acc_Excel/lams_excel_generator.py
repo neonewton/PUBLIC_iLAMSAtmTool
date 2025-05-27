@@ -20,11 +20,12 @@ else:                      # Linux / macOS
 import tkinter as tk
 from tkinter import messagebox
 import pandas as pd
+import xlwt
 from datetime import datetime
 
 # --- Constants ---
-STUDENT_HEADERS = "login | organisation | roles "
-STAFF_HEADERS   = "login | organisation | roles | add to lessons"
+STUDENT_HEADERS = ["login", "organisation", "roles"]
+STAFF_HEADERS   = ["login", "organisation", "roles", "add to lessons"]
 
 # --- Helper Functions ---
 def parse_emails(text):
@@ -39,38 +40,45 @@ def parse_emails(text):
                 emails.append(email)
     return emails
 
+
+def save_xls(filename, headers, rows):
+    """
+    Write rows (list of lists) with headers (list) to an XLS file via xlwt.
+    """
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet('Sheet1')
+    # write headers
+    for col, h in enumerate(headers):
+        ws.write(0, col, h)
+    # write data rows
+    for r, row in enumerate(rows, start=1):
+        for c, val in enumerate(row):
+            ws.write(r, c, val)
+    wb.save(filename)
+    return filename
+
 # --- Build Functions ---
 def build_student_file(course_name, course_id, emails):
     """
-    Generate a single student-list .xls file with columns:
-      login, organisation, roles
+    Generate a single student-list .xls file.
     """
     today = datetime.now().strftime("%d%m%y")
-    df = pd.DataFrame({
-        "login":        emails,
-        "organisation": [course_id] * len(emails),
-        "roles":        ["Learner"] * len(emails)
-    })
+    rows = []
+    for email in emails:
+        rows.append([email, course_id, "Learner"] )
     filename = f"{course_name}_CID{course_id}_{today}.xls"
-    df.to_excel(filename, index=False, engine='xlwt')
-    return filename
+    return save_xls(filename, STUDENT_HEADERS, rows)
+
 
 def build_staff_files(department, course_id, emails):
     """
-    Generate one staff-list .xls file per email with columns:
-      login, organisation, roles, add to lessons
+    Generate one staff-list .xls file per email.
     """
     files = []
     for email in emails:
-        df = pd.DataFrame({
-            "login":          [email],
-            "organisation":   [course_id],
-            "roles":          ["Monitor"],
-            "add to lessons": ["Yes"]
-        })
+        rows = [[email, course_id, "Monitor", "Yes"]]
         filename = f"{department}_{email}.xls"
-        df.to_excel(filename, index=False, engine='xlwt')
-        files.append(filename)
+        files.append(save_xls(filename, STAFF_HEADERS, rows))
     return files
 
 # --- GUI Setup ---
@@ -89,19 +97,17 @@ tk.Label(root, text="Header:").grid(row=1, column=0, sticky='e', padx=4)
 header_label = tk.Label(root, textvariable=header_var, fg='blue')
 header_label.grid(row=1, column=1, columnspan=2, sticky='w')
 
-# Emails input (Text same size as Course ID Text)
-root.grid_columnconfigure(1, weight=1)
-
+# Emails input
 tk.Label(root, text="Emails:").grid(row=2, column=0, sticky='ne', padx=4, pady=4)
 email_text = tk.Text(root, width=60, height=8)
 email_text.grid(row=2, column=1, columnspan=2, sticky='ew', pady=4)
-email_text.insert('1.0', "nelton.tan@ntu.edu.sg, nelton.tan@ntu.edu.sg")
+email_text.insert('1.0', "Enter emails, one per line or comma-separated")
 
-# Course ID input as Text to match Emails height
+# Course ID input
 tk.Label(root, text="Course ID:").grid(row=3, column=0, sticky='ne', padx=4, pady=4)
 course_id_text = tk.Text(root, width=60, height=8)
 course_id_text.grid(row=3, column=1, columnspan=2, sticky='ew', pady=4)
-course_id_text.insert('1.0', "580")
+course_id_text.insert('1.0', "Enter Course ID")
 
 # Course Name (students only)
 tk.Label(root, text="Course Name:").grid(row=4, column=0, sticky='e', padx=4)
@@ -113,7 +119,7 @@ tk.Label(root, text="Department:").grid(row=5, column=0, sticky='e', padx=4)
 dept_entry = tk.Entry(root, width=60)
 dept_entry.grid(row=5, column=1, columnspan=2, sticky='w', pady=4)
 
-# Role (pre-filled but editable)
+# Role (editable)
 tk.Label(root, text="Role:").grid(row=6, column=0, sticky='e', padx=4)
 role_entry = tk.Entry(root, width=60)
 role_entry.grid(row=6, column=1, columnspan=2, sticky='w', pady=4)
@@ -153,13 +159,13 @@ def run():
 def switch_mode():
     mode = mode_var.get()
     if mode == 'student':
-        header_var.set(STUDENT_HEADERS)
+        header_var.set(' | '.join(STUDENT_HEADERS))
         course_name_entry.config(state='normal')
         dept_entry.config(state='disabled')
         role_entry.delete(0, 'end')
         role_entry.insert(0, 'Learner')
     else:
-        header_var.set(STAFF_HEADERS)
+        header_var.set(' | '.join(STAFF_HEADERS))
         course_name_entry.delete(0, 'end')
         course_name_entry.config(state='disabled')
         dept_entry.config(state='normal')
