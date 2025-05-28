@@ -1,13 +1,7 @@
 #!/usr/local/bin/python3
 
 """
-lams_excel_generator.py
-
-A simple Tkinter GUI to generate LAMS Excel files for students or staff.
-
-Usage:
-    pip3 install pandas xlwt
-    python3 lams_excel_generator.py
+pip3 install pandas xlwt
 """
 
 import sys
@@ -24,8 +18,8 @@ import xlwt
 from datetime import datetime
 
 # --- Constants ---
-STUDENT_HEADERS = ["login", "organisation", "roles"]
-STAFF_HEADERS   = ["login", "organisation", "roles", "add to lessons"]
+STUDENT_HEADERS = ["* login", "* organisation", "* roles"]
+STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]"]
 
 # --- Helper Functions ---
 def parse_emails(text):
@@ -95,8 +89,15 @@ def run():
     cid = course_id_text.get('1.0', 'end').strip()
     folder = save_dir_var.get().strip()
 
-    if not folder or not os.path.isdir(folder):
-        return messagebox.showerror("Error", "Please select a valid Save Folder.")
+    # Ensure the folder exists (creates it if necessary)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    else:
+        return messagebox.showerror("Error", "Please select a Save Folder.")
+
+    # Now it definitely exists
+    if not os.path.isdir(folder):
+        return messagebox.showerror("Error", "Could not create Save Folder.")
 
     if mode == 'student':
         name = course_name_entry.get().strip()
@@ -123,7 +124,7 @@ def switch_mode():
         role_entry.insert(0, 'Learner')
     else:
         header_var.set(' | '.join(STAFF_HEADERS))
-        course_name_entry.delete(0, 'end')
+        # course_name_entry.delete(0, 'end')
         course_name_entry.config(state='disabled')
         dept_entry.config(state='normal')
         role_entry.delete(0, 'end')
@@ -131,71 +132,118 @@ def switch_mode():
 
 # --- GUI Setup ---
 root = tk.Tk()
-root.title("LAMS Annual Prep Staff Stud Excel Generator")
+root.title("LAMS User Import Excel")
 
 mode_var    = tk.StringVar(value='staff')
 header_var  = tk.StringVar()
-save_dir_var = tk.StringVar(value=os.getcwd())
+# save_dir_var = tk.StringVar(value=os.getcwd()) # current working directory
+today_2 = datetime.now().strftime("%d%m%y")
+home = os.path.expanduser("~")
+downloads = os.path.join(home, "Downloads", f"LAMS User Import Excel_{today_2}")
+save_dir_var = tk.StringVar(value=downloads)
 
-# Instruction label
-tk.Label(root, text="Choose student or staff list to import users into LAMS").grid(
-    row=0, column=0, columnspan=3, padx=10, pady=(10,4), sticky='w')
+
+# --- grid layout options ---
+row_int = 0
+grid_opts = {
+    'title_label':          dict(row=row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'instruction_label':    dict(row=row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'mode_staff_rb':        dict(row=row_int+2, column=0, padx=8, pady=4, sticky='w'),
+    'mode_student_rb':      dict(row=row_int+2, column=1, padx=8, pady=4, sticky='w'),
+    'save_label':           dict(row=row_int+3, column=0, sticky='e', padx=4),
+    'save_entry':           dict(row=row_int+3, column=1, columnspan=2, sticky='ew', pady=4),
+    'browse_btn':           dict(row=row_int+3, column=3, sticky= 'e', padx=4),
+    'header_text_label':    dict(row=row_int+4, column=0, sticky='e', padx=4),
+    'header_label':         dict(row=row_int+4, column=1, columnspan=2, sticky='w'),
+    'emails_label':         dict(row=row_int+5, column=0, sticky='ne', padx=4, pady=4),
+    'emails_text':          dict(row=row_int+5, column=1, columnspan=2, sticky='nsew', pady=4),
+    'courseid_label':       dict(row=row_int+6, column=0, sticky='ne', padx=4, pady=4),
+    'courseid_text':        dict(row=row_int+6, column=1, columnspan=2, sticky='nsew', pady=4),
+    'coursename_label':     dict(row=row_int+7, column=0, sticky='e', padx=4),
+    'coursename_entry':     dict(row=row_int+7, column=1, columnspan=2, sticky='ew', pady=4),
+    'dept_label':           dict(row=row_int+8, column=0, sticky='e', padx=4),
+    'dept_entry':           dict(row=row_int+8, column=1, columnspan=2, sticky='ew', pady=4),
+    'role_label':           dict(row=row_int+9, column=0, sticky='e', padx=4),
+    'role_entry':           dict(row=row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
+    'buttons_frame':        dict(row=row_int+10, column=0, columnspan=3, sticky='ew', pady=10),
+}
+
+# --- setup container frame with padding ---
+container = tk.Frame(root, padx=15, pady=15)
+container.grid(row=0, column=0, sticky="nsew")
+
+# allow container→col1 to expand
+container.grid_columnconfigure(0, weight=1)
+container.grid_columnconfigure(1, weight=0)
+container.grid_columnconfigure(2, weight=1)
+
+# Widgets, using grid_opts:
+tk.Label(container, text="LAMS User Import Excel", font=("Helvetic",14,"bold")).grid(**grid_opts['title_label'])
+tk.Label(container, text="Build an Excel file for LAMS user import that lets you choose between Student and Staff lists.").grid(**grid_opts['instruction_label'])
 
 # Mode toggle
-tk.Radiobutton(root, text="Student List", variable=mode_var, value='student', command=switch_mode).grid(row=1, column=1, padx=8, pady=4, sticky='w')
-tk.Radiobutton(root, text="Staff List",   variable=mode_var, value='staff',   command=switch_mode).grid(row=1, column=0, padx=8, pady=4, sticky='w')
+tk.Radiobutton(container, text="Staff List", variable=mode_var, value='staff', command=switch_mode).grid(**grid_opts['mode_staff_rb'])
+tk.Radiobutton(container, text="Student List", variable=mode_var, value='student', command=switch_mode).grid(**grid_opts['mode_student_rb'])
 
 # Save folder chooser row
-tk.Label(root, text="Save Folder:").grid(row=2, column=0, sticky='e', padx=4)
-save_entry = tk.Entry(root, textvariable=save_dir_var, width=50)
-save_entry.grid(row=2, column=1, sticky='w', pady=4)
-tk.Button(root, text="Browse…", command=select_folder).grid(row=2, column=2, padx=4)
+tk.Label(container, text="Save Folder:").grid(**grid_opts['save_label'])
+tk.Entry(container, textvariable=save_dir_var).grid(**grid_opts['save_entry'])
+tk.Button(container, text="Browse…", command=select_folder).grid(**grid_opts['browse_btn'])
 
 # Header display
-tk.Label(root, text="Header:").grid(row=3, column=0, sticky='e', padx=4)
-header_label = tk.Label(root, textvariable=header_var, fg='blue')
-header_label.grid(row=3, column=1, columnspan=2, sticky='w')
+tk.Label(container, text="Header:").grid(**grid_opts['header_text_label'])
+tk.Label(container, textvariable=header_var, fg='dark gray').grid(**grid_opts['header_label'])
 
 # Emails input
-tk.Label(root, text="Emails:").grid(row=4, column=0, sticky='ne', padx=4, pady=4)
-email_text = tk.Text(root, width=60, height=8)
-email_text.grid(row=4, column=1, columnspan=2, sticky='ew', pady=4)
+tk.Label(container, text="Emails:").grid(**grid_opts['emails_label'])
+email_text = tk.Text(container, width=1, height=8)
+email_text.grid(**grid_opts['emails_text'])
 email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\n")
 
 # Course ID input
-tk.Label(root, text="Course ID:").grid(row=5, column=0, sticky='ne', padx=4, pady=4)
-course_id_text = tk.Text(root, width=60, height=8)
-course_id_text.grid(row=5, column=1, columnspan=2, sticky='ew', pady=4)
+tk.Label(container, text="Course ID:").grid(**grid_opts['courseid_label'])
+course_id_text = tk.Text(container, width=1, height=8)
+course_id_text.grid(**grid_opts['courseid_text'])
 course_id_text.insert('1.0', "580")
 
 # Course Name (students only)
-tk.Label(root, text="Course Name:").grid(row=6, column=0, sticky='e', padx=4)
-course_name_entry = tk.Entry(root, width=60)
-course_name_entry.grid(row=6, column=1, columnspan=2, sticky='w', pady=4)
+tk.Label(container, text="Course Name:").grid(**grid_opts['coursename_label'])
+course_name_entry = tk.Entry(container, width=61)
+course_name_entry.grid(**grid_opts['coursename_entry'])
 course_name_entry.insert(0, "Test_Course_Name")
 
 # Department (staff only)
-tk.Label(root, text="Department:").grid(row=7, column=0, sticky='e', padx=4)
-dept_entry = tk.Entry(root, width=60)
-dept_entry.grid(row=7, column=1, columnspan=2, sticky='w', pady=4)
+tk.Label(container, text="Department:").grid(**grid_opts['dept_label'])
+dept_entry = tk.Entry(container, width=61)
+dept_entry.grid(**grid_opts['dept_entry'])
 dept_entry.insert(0, "Test_Department")
 
 # Role (editable)
-tk.Label(root, text="Role:").grid(row=8, column=0, sticky='e', padx=4)
-role_entry = tk.Entry(root, width=60)
-role_entry.grid(row=8, column=1, columnspan=2, sticky='w', pady=4)
+tk.Label(container, text="Role:").grid(**grid_opts['role_label'])
+role_entry = tk.Entry(container, width=1)
+role_entry.grid(**grid_opts['role_entry'])
 role_entry.insert(0, 'Learner')
 
 # Buttons Frame
-btn_frame = tk.Frame(root)
-btn_frame.grid(row=9, column=1, columnspan=2, pady=10)
-run_btn = tk.Button(btn_frame, text="Run", width=10, command=run)
-run_btn.pack(side='left', padx=5)
+btn_frame = tk.Frame(container)
+btn_frame.grid(**grid_opts['buttons_frame'])
+
+# Give its columns 0 and 3 all the extra space
+btn_frame.grid_columnconfigure(0, weight=1)
+btn_frame.grid_columnconfigure(3, weight=1)
+# do not use expand example: 
+# tk.Button(btn_frame, text="Run",   width=10, command=run).pack(padx=10, pady=5, expand=True)
+# tk.Button(btn_frame, text="Close", width=10, command=root.destroy).pack(padx=10, pady=5, expand=True)
+
+# Create and grid the two buttons in the middle columns 1 & 2
+run_btn = tk.Button(btn_frame, text="Run",   width=10, command=run)
+run_btn.grid(row=0, column=1, padx=5)
 close_btn = tk.Button(btn_frame, text="Close", width=10, command=root.destroy)
-close_btn.pack(side='left')
+close_btn.grid(row=0, column=2, padx=5)
 
 # Configure columns and window sizing
-root.grid_columnconfigure(1, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.grid_rowconfigure(0, weight=1)
 root.update()
 root.minsize(root.winfo_width(), root.winfo_height())
 root.resizable(False, False)
