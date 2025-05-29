@@ -16,6 +16,8 @@ from tkinter import messagebox, filedialog
 import pandas as pd
 import xlwt
 from datetime import datetime
+from tkinter import ttk  # <-- for Notebook
+from tkinter.scrolledtext import ScrolledText
 
 # --- Constants ---
 STUDENT_HEADERS = ["* login", "* organisation", "* roles"]
@@ -168,6 +170,7 @@ grid_opts = {
     'buttons_frame':        dict(row=row_int+10, column=0, columnspan=3, sticky='ew', pady=10),
 }
 
+"""
 # --- setup container frame with padding ---
 container = tk.Frame(root, padx=15, pady=15)
 container.grid(row=0, column=0, sticky="nsew")
@@ -176,56 +179,73 @@ container.grid(row=0, column=0, sticky="nsew")
 container.grid_columnconfigure(0, weight=1)
 container.grid_columnconfigure(1, weight=0)
 container.grid_columnconfigure(2, weight=1)
+"""
+# instead of excel_frame = tk.Frame(root,…)
+notebook = ttk.Notebook(root)
+notebook.grid(row=0, column=0, sticky="nsew")
 
+# make root stretch to fill
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
+# create three pages
+excel_frame  = tk.Frame(notebook, padx=15, pady=15)
+import_frame = tk.Frame(notebook, padx=15, pady=15)
+upload_elentra_link_frame = tk.Frame(notebook, padx=15, pady=15)
+notebook.add(excel_frame, text="Excel")
+notebook.add(import_frame, text="Import")
+notebook.add(upload_elentra_link_frame, text="Upload Elentra Link")
+
+###~~~~ EXCEL ~~~~###
 # Widgets, using grid_opts:
-tk.Label(container, text="LAMS User Import Excel", font=("Helvetic",14,"bold")).grid(**grid_opts['title_label'])
-tk.Label(container, text="Build an Excel file for LAMS user import that lets you choose between Student and Staff lists.").grid(**grid_opts['instruction_label'])
+tk.Label(excel_frame, text="LAMS User Import Excel", font=("Helvetic",14,"bold")).grid(**grid_opts['title_label'])
+tk.Label(excel_frame, text="Build an Excel file for LAMS user import that lets you choose between Student and Staff lists.").grid(**grid_opts['instruction_label'])
 
 # Mode toggle
-tk.Radiobutton(container, text="Staff List", variable=mode_var, value='staff', command=switch_mode).grid(**grid_opts['mode_staff_rb'])
-tk.Radiobutton(container, text="Student List", variable=mode_var, value='student', command=switch_mode).grid(**grid_opts['mode_student_rb'])
+tk.Radiobutton(excel_frame, text="Staff List", variable=mode_var, value='staff', command=switch_mode).grid(**grid_opts['mode_staff_rb'])
+tk.Radiobutton(excel_frame, text="Student List", variable=mode_var, value='student', command=switch_mode).grid(**grid_opts['mode_student_rb'])
 
 # Save folder chooser row
-tk.Label(container, text="Save Folder:").grid(**grid_opts['save_label'])
-tk.Entry(container, textvariable=save_dir_var).grid(**grid_opts['save_entry'])
-tk.Button(container, text="Browse…", command=select_folder).grid(**grid_opts['browse_btn'])
+tk.Label(excel_frame, text="Save Folder:").grid(**grid_opts['save_label'])
+tk.Entry(excel_frame, textvariable=save_dir_var).grid(**grid_opts['save_entry'])
+tk.Button(excel_frame, text="Browse…", command=select_folder).grid(**grid_opts['browse_btn'])
 
 # Header display
-tk.Label(container, text="Header:").grid(**grid_opts['header_text_label'])
-tk.Label(container, textvariable=header_var, fg='dark gray').grid(**grid_opts['header_label'])
+tk.Label(excel_frame, text="Header:").grid(**grid_opts['header_text_label'])
+tk.Label(excel_frame, textvariable=header_var, fg='dark gray').grid(**grid_opts['header_label'])
 
 # Emails input
-tk.Label(container, text="Emails:").grid(**grid_opts['emails_label'])
-email_text = tk.Text(container, width=1, height=8)
+tk.Label(excel_frame, text="Emails:").grid(**grid_opts['emails_label'])
+email_text = tk.Text(excel_frame, width=1, height=8)
 email_text.grid(**grid_opts['emails_text'])
 email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\n")
 
 # Course ID input
-tk.Label(container, text="Course ID:").grid(**grid_opts['courseid_label'])
-course_id_text = tk.Text(container, width=1, height=8)
+tk.Label(excel_frame, text="Course ID:").grid(**grid_opts['courseid_label'])
+course_id_text = tk.Text(excel_frame, width=1, height=8)
 course_id_text.grid(**grid_opts['courseid_text'])
 course_id_text.insert('1.0', "580")
 
 # Course Name (students only)
-tk.Label(container, text="Course Name:").grid(**grid_opts['coursename_label'])
-course_name_entry = tk.Entry(container, width=61)
+tk.Label(excel_frame, text="Course Name:").grid(**grid_opts['coursename_label'])
+course_name_entry = tk.Entry(excel_frame, width=61)
 course_name_entry.grid(**grid_opts['coursename_entry'])
 course_name_entry.insert(0, "Test_Course_Name")
 
 # Department (staff only)
-tk.Label(container, text="Department:").grid(**grid_opts['dept_label'])
-dept_entry = tk.Entry(container, width=61)
+tk.Label(excel_frame, text="Department:").grid(**grid_opts['dept_label'])
+dept_entry = tk.Entry(excel_frame, width=61)
 dept_entry.grid(**grid_opts['dept_entry'])
 dept_entry.insert(0, "Test_Department")
 
 # Role (editable)
-tk.Label(container, text="Role:").grid(**grid_opts['role_label'])
-role_entry = tk.Entry(container, width=1)
+tk.Label(excel_frame, text="Role:").grid(**grid_opts['role_label'])
+role_entry = tk.Entry(excel_frame, width=1)
 role_entry.grid(**grid_opts['role_entry'])
 role_entry.insert(0, 'Learner')
 
 # Buttons Frame
-btn_frame = tk.Frame(container)
+btn_frame = tk.Frame(excel_frame)
 btn_frame.grid(**grid_opts['buttons_frame'])
 
 # Give its columns 0 and 3 all the extra space
@@ -241,9 +261,59 @@ run_btn.grid(row=0, column=1, padx=5)
 close_btn = tk.Button(btn_frame, text="Close", width=10, command=root.destroy)
 close_btn.grid(row=0, column=2, padx=5)
 
+###~~~~ end of EXCEL ~~~~###
+
+# --- Import tab widgets ---
+tk.Label(import_frame, text="Import all .xls files from folder", font=("Helvetica",14,"bold")).grid(row=0, column=0, columnspan=3, pady=(0,8), sticky="w")
+
+# folder to import from
+tk.Label(import_frame, text="Folder:").grid(row=1, column=0, sticky='e', padx=4)
+import_dir_var = tk.StringVar(value=save_dir_var.get())
+tk.Entry(import_frame, textvariable=import_dir_var, width=50).grid(row=1, column=1, sticky='ew', pady=4)
+tk.Button(import_frame, text="Browse…", 
+          command=lambda: import_dir_var.set(filedialog.askdirectory(initialdir=import_dir_var.get())))\
+  .grid(row=1, column=2, padx=4)
+
+# scrolled text for logs
+tk.Label(import_frame, text="Logs:").grid(row=2, column=0, sticky='nw', padx=4, pady=4)
+log_widget = ScrolledText(import_frame, width=60, height=15, state='disabled')
+log_widget.grid(row=2, column=1, columnspan=2, sticky='nsew', pady=4)
+
+# start import button
+def import_all():
+    folder = import_dir_var.get().strip()
+    if not os.path.isdir(folder):
+        return messagebox.showerror("Error", "Please select a valid folder to import from.")
+    log_widget.config(state='normal')
+    log_widget.delete('1.0','end')
+    for fn in os.listdir(folder):
+        if fn.lower().endswith('.xls'):
+            full = os.path.join(folder, fn)
+            log_widget.insert('end', f"Uploading {fn}…\n")
+            log_widget.see('end')
+            root.update_idletasks()
+
+            # --- placeholder for your Selenium upload code ---
+            # success = your_selenium_upload_function(full)
+
+            if success:
+                log_widget.insert('end', f"✅ {fn} uploaded\n\n")
+            else:
+                log_widget.insert('end', f"❌ {fn} FAILED\n\n")
+            log_widget.see('end')
+            root.update_idletasks()
+    log_widget.insert('end', "All done!\n")
+    log_widget.config(state='disabled')
+
+tk.Button(import_frame, text="Start Import", command=import_all).grid(row=3, column=1, pady=(10,0))
+
+###
+
 # Configure columns and window sizing
-root.grid_columnconfigure(0, weight=1)
-root.grid_rowconfigure(0, weight=1)
+# root.grid_columnconfigure(0, weight=1)
+# root.grid_rowconfigure(0, weight=1)
+import_frame.grid_columnconfigure(1, weight=1)
+import_frame.grid_rowconfigure(2, weight=1)
 root.update()
 root.minsize(root.winfo_width(), root.winfo_height())
 root.resizable(False, False)

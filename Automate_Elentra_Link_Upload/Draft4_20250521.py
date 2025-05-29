@@ -781,7 +781,7 @@ def get_user_choices(
 
     # — when OK is pressed, disable inputs, queue the automation, but do NOT destroy
     def on_ok():
-        # 1) make sure at least one of the two URLs is requested
+    # 1) make sure at least one of the two URLs is requested
         if not (mon_var.get() or stu_var.get()):
             messagebox.showerror(
             "Selection error",
