@@ -185,7 +185,7 @@ notebook = ttk.Notebook(root)
 notebook.grid(row=0, column=0, sticky="nsew")
 
 # make root stretch to fill
-root.grid_rowconfigure(0, weight=1)
+root.grid_rowconfigure(1, weight=1)
 root.grid_columnconfigure(0, weight=1)
 
 # create three pages

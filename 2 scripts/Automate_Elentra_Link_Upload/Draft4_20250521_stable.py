@@ -90,7 +90,7 @@ print("⏳ Waiting for user input ⏳")
 
 time_sleep = 1.5 #1 sec or 0.05 sec # wait x seconds between actions, for presentation purposes
 time_out = 10 #wait up to x seconds for element to be clickable
-#highlight_duration = 0.05 set in def highlight ()
+highlight_duration = 0.05 #set in def highlight ()
 
 def ui_log(message: str):
     """Append `message` + newline to the ScrolledText, keeping it read-only."""
@@ -107,7 +107,7 @@ def dramatic_input(element, text, delay=1):
         # time.sleep(delay)
 
 # function for highlight element in red, for presentation purposes 1 sec or 0.1 sec, value to be lower than time_sleep
-def highlight(el, highlight_duration =0.1, color='clear', border="4px solid red"):
+def highlight(el, duration = highlight_duration, color='clear', border="4px solid red"):
     # 1) Scroll the element into view
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", el)
     # 2) Save its current style so we can restore later

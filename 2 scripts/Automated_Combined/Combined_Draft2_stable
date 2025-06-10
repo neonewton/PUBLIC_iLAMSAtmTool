@@ -243,6 +243,7 @@ import_frame.grid_columnconfigure(1, weight=1); import_frame.grid_rowconfigure(2
 ###~~~~ SELENIUM TAB (Code #1) ~~~~###
 tk.Label(selenium_frame, text="Automated Upload with Selenium", font=("Helvetica",14,"bold")).pack(anchor='w', pady=(0,8))
 tk.Label(selenium_frame, text="(Full RPA automation. See README for details.)").pack(anchor='w')
+
 # Add your custom fields here as desired, or simply use code #1’s own layout
 
 selenium_start_btn = tk.Button(selenium_frame, text="Run Selenium Upload", command=lambda:selenium_run_threadsafe())
