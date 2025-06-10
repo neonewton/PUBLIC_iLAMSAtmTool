@@ -819,9 +819,16 @@ def get_user_choices(
         ))
 
     def on_cancel():
+        # 1) if you’ve already created a Selenium driver, tear it down
+        if 'driver' in globals() and driver:
+            try:
+                driver.quit()
+            except Exception:
+                pass
+        # 2) destroy the UI
         ui_root.destroy()
-        print("❌ Operation cancelled by user")
-        sys.exit("❌ Operation cancelled by user")
+        # 3) exit cleanly
+        sys.exit(0)
     
     # 5) buttons: OK kicks off automation, Close actually destroys the window
     global ok_btn, close_btn
@@ -829,6 +836,7 @@ def get_user_choices(
     btnf.grid(row=6, column=0, columnspan=2, pady=8, sticky="s")
     ok_btn    = tk.Button(btnf, text="OK",    width=10, command=on_ok) 
     close_btn = tk.Button(btnf, text="Close", width=10, command=on_cancel)
+    ui_root.protocol("WM_DELETE_WINDOW", on_cancel)
     ok_btn.pack(side="left",  padx=8)
     close_btn.pack(side="left", padx=8)
     ui_root.mainloop()

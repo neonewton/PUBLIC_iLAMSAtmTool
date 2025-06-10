@@ -1,0 +1,426 @@
+#!/usr/local/bin/python3
+# shift cmd P to select 3.13 
+# DO NOT USE !/usr/bin/env python3
+
+"""
+Checklist
+1) Ensure you had done reading README.md
+2) Done pip install the requirements.txt
+"""
+# Ensure you have started Chrome with:
+r"""
+MAC:
+open -a "Google Chrome" --args \
+  --remote-debugging-port=9222 \
+  --user-data-dir="$HOME/chrome-debug-profile"
+then
+curl http://127.0.0.1:9222/json
+
+WINDOWS:
+& 'C:\Program Files\Google\Chrome\Application\chrome.exe' `
+  --remote-debugging-port=9222 `
+  --user-data-dir="C:\Users\Neone\chrome-debug-profile"
+then
+curl http://127.0.0.1:9222/json
+
+"""
+
+import sys, os, threading, time
+from datetime import datetime
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+from tkinter.scrolledtext import ScrolledText
+import pandas as pd
+import xlwt
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
+
+
+if os.name == "nt":        # Windows
+    os.system("cls")
+else:                      # Linux / macOS
+    os.system("clear")
+
+import time
+
+"""
+# 1) Path to your matching ChromeDriver
+chrome_driver_path = r"C:\\Users\\Neone\\Driver\\chromedriver.exe"  
+service = Service(chrome_driver_path)
+
+# 2) Tell Selenium to hook into the existing Chrome debug port
+options = Options()
+options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+
+# 3) Create the driver (this will *not* open a new browser window)
+driver = webdriver.Chrome(service=service, options=options)
+
+# 4) Confirm it s attached by printing the current title and URL
+print("Attached to browser:", driver.title, driver.current_url)
+
+"""
+# Check which Python interpreter is in use
+print("Using Python executable:", sys.executable)
+print("⏳ Waiting for user input ⏳")
+
+# ---- Universal logger function ----
+def log(msg, newline=True):
+    log_widget.config(state='normal')
+    log_widget.insert('end', msg + ('\n' if newline else ''))
+    log_widget.see('end')
+    log_widget.config(state='disabled')
+    root.update_idletasks()
+
+# ---- Constants for Excel ----
+STUDENT_HEADERS = ["* login", "* organisation", "* roles","* add to lessons [yes/no]","* "]
+STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]","* "]
+
+def parse_emails(text):
+    emails = []
+    for line in text.splitlines():
+        for part in line.split(','):
+            email = part.strip()
+            if email:
+                emails.append(email)
+    return emails
+
+def save_xls(folder, filename, headers, rows):
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet('Sheet1')
+    for col, h in enumerate(headers): ws.write(0, col, h)
+    for r, row in enumerate(rows, start=1):
+        for c, val in enumerate(row): ws.write(r, c, val)
+    path = os.path.join(folder, filename)
+    wb.save(path)
+    return path
+
+def build_student_file(folder, course_name, course_id, emails, role_entry, add_info_text):
+    """
+    One file, many emails all tied to the same course_id.
+    """
+    today = datetime.now().strftime("%d%m%y")
+    rows = [
+        # each row: [email, course_id, role, upload_flag, extra_info]
+        [email, course_id, role_entry, "Yes", add_info_text]
+        for email in emails
+    ]
+    fname = f"{course_name}_CID{course_id}_{today}.xls"
+    return save_xls(folder, fname, STUDENT_HEADERS, rows)
+
+def build_staff_files(folder, department, course_ids, emails, role_entry, add_infos):
+    """
+    One file per staff email; each file contains multiple rows,
+    one per course_id.
+    """
+    today = datetime.now().strftime("%d%m%y")
+    files = []
+    for email in emails:
+        rows = [
+            # (for each course, pull its matching add_info)
+            [email, cid, role_entry, "Yes", info]
+            for cid, info in zip(course_ids, add_infos)
+        ]
+        # safe-filename the email if needed, or strip “@” / “.” etc
+        safe_email = email.replace("@ntu.edu.sg", "")
+        fname = f"{department}_{safe_email}_{today}.xls"
+        files.append(save_xls(folder, fname, STAFF_HEADERS, rows))
+    return files
+
+# ---- Tkinter Setup ----
+root = tk.Tk()
+root.title("LAMS RPA Tool")
+
+today_2 = datetime.now().strftime("%d%m%y")
+# for simplicity, will direct the save dir to user's downloads folder
+home = os.path.expanduser("~")
+downloads = os.path.join(home, "Downloads", f"LAMS User Import Excel_{today_2}")
+# for testing purpose, we use source code folder
+script_dir = os.path.dirname(os.path.abspath(__file__))
+output_folder = os.path.join(script_dir, os.pardir, "3 data", "output",f"LAMS User Import Excel_{today_2}")
+os.makedirs(output_folder, exist_ok=True)
+
+# --- Control variables
+mode_var    = tk.StringVar(value='staff')
+header_var  = tk.StringVar()
+save_dir_var = tk.StringVar(value=output_folder)
+import_dir_var = tk.StringVar(value=output_folder)
+
+# --- Grid options for Excel tab
+row_int = 0
+grid_opts = {
+    'title_label':          dict(row=row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'instruction_label':    dict(row=row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'mode_staff_rb':        dict(row=row_int+2, column=0, padx=8, pady=4, sticky='w'),
+    'mode_student_rb':      dict(row=row_int+2, column=1, padx=8, pady=4, sticky='w'),
+    'save_label':           dict(row=row_int+3, column=0, sticky='e', padx=4),
+    'save_entry':           dict(row=row_int+3, column=1, columnspan=2, sticky='ew', pady=4),
+    'browse_btn':           dict(row=row_int+3, column=3, sticky= 'e', padx=4),
+    'header_text_label':    dict(row=row_int+4, column=0, sticky='e', padx=4),
+    'header_label':         dict(row=row_int+4, column=1, columnspan=2, sticky='w'),
+    'emails_label':         dict(row=row_int+5, column=0, sticky='ne', padx=4, pady=4),
+    'emails_text':          dict(row=row_int+5, column=1, columnspan=2, sticky='nsew', pady=4),
+    'courseid_label':       dict(row=row_int+6, column=0, sticky='ne', padx=4, pady=4),
+    'courseid_text':        dict(row=row_int+6, column=1, columnspan=2, sticky='nsew', pady=4),
+    'add_info_label':     dict(row=row_int+7, column=0, sticky='ne', padx=4, pady=4),
+    'add_info_entry':     dict(row=row_int+7, column=1, columnspan=2, sticky='nsew', pady=4),
+    'coursename_label':     dict(row=row_int+8, column=0, sticky='e', padx=4),
+    'coursename_entry':     dict(row=row_int+8, column=1, columnspan=2, sticky='ew', pady=4),
+    'dept_label':           dict(row=row_int+9, column=0, sticky='e', padx=4),
+    'dept_entry':           dict(row=row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
+    'role_label':           dict(row=row_int+10, column=0, sticky='e', padx=4),
+    'role_entry':           dict(row=row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
+    'buttons_frame':        dict(row=row_int+11, column=0, columnspan=3, sticky='ew', pady=10),
+}
+
+# --- TTK Notebook for Tabs ---
+notebook = ttk.Notebook(root)
+notebook.grid(row=0, column=0, sticky="nsew")
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
+excel_frame  = tk.Frame(notebook, padx=15, pady=15)
+import_frame = tk.Frame(notebook, padx=15, pady=15)
+selenium_frame = tk.Frame(notebook, padx=15, pady=15)
+about_frame = tk.Frame(notebook, padx=15, pady=15)
+notebook.add(excel_frame, text="Excel")
+notebook.add(import_frame, text="Import")
+notebook.add(selenium_frame, text="Upload Elentra Link")
+notebook.add(about_frame, text="About")
+
+# ---- Global widgets for later disable/enable ----
+global_buttons = []
+
+###~~~~ EXCEL TAB ~~~~###
+tk.Label(excel_frame, text="LAMS User Import Excel", font=("Helvetic",14,"bold")).grid(**grid_opts['title_label'])
+tk.Label(excel_frame, text="Build an Excel file for LAMS user import that lets you choose between Student and Staff lists.").grid(**grid_opts['instruction_label'])
+tk.Radiobutton(excel_frame, text="Staff List", variable=mode_var, value='staff', command=lambda:switch_mode()).grid(**grid_opts['mode_staff_rb'])
+tk.Radiobutton(excel_frame, text="Student List", variable=mode_var, value='student', command=lambda:switch_mode()).grid(**grid_opts['mode_student_rb'])
+tk.Label(excel_frame, text="Save Folder:").grid(**grid_opts['save_label'])
+tk.Entry(excel_frame, textvariable=save_dir_var).grid(**grid_opts['save_entry'])
+tk.Button(excel_frame, text="Browse…", command=lambda:select_folder(save_dir_var)).grid(**grid_opts['browse_btn'])
+tk.Label(excel_frame, text="Header:").grid(**grid_opts['header_text_label'])
+tk.Label(excel_frame, textvariable=header_var, fg='dark gray').grid(**grid_opts['header_label'])
+tk.Label(excel_frame, text="Emails:").grid(**grid_opts['emails_label'])
+email_text = tk.Text(excel_frame, width=1, height=8); email_text.grid(**grid_opts['emails_text'])
+email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\n")
+tk.Label(excel_frame, text="Course ID:").grid(**grid_opts['courseid_label'])
+course_id_text = tk.Text(excel_frame, width=1, height=8); course_id_text.grid(**grid_opts['courseid_text']); course_id_text.insert('1.0', "629\n630\n631\n632\n633\n634\n635\n636\n637")
+tk.Label(excel_frame, text="Course Name:").grid(**grid_opts['coursename_label'])
+course_name_entry = tk.Entry(excel_frame, width=61); course_name_entry.grid(**grid_opts['coursename_entry']); course_name_entry.insert(0, "Test_Course_Name")
+tk.Label(excel_frame, text="Additional Info:").grid(**grid_opts['add_info_label'])
+add_info_text = tk.Text(excel_frame, width=1, height=8); add_info_text.grid(**grid_opts['add_info_entry']); add_info_text.insert('1.0', "Course_1\nCourse_2\nCourse_3\nCourse_4\nCourse_5\nCourse_6\nCourse_7\nCourse_8\nCourse_9")
+tk.Label(excel_frame, text="Department:").grid(**grid_opts['dept_label'])
+dept_entry = tk.Entry(excel_frame, width=61); dept_entry.grid(**grid_opts['dept_entry']); dept_entry.insert(0, "Test_Department")
+tk.Label(excel_frame, text="Role:").grid(**grid_opts['role_label'])
+role_entry = tk.Entry(excel_frame, width=1); role_entry.grid(**grid_opts['role_entry']); role_entry.insert(0, 'Learner')
+btn_frame = tk.Frame(excel_frame); btn_frame.grid(**grid_opts['buttons_frame'])
+btn_frame.grid_columnconfigure(0, weight=1); btn_frame.grid_columnconfigure(3, weight=1)
+run_btn = tk.Button(btn_frame, text="Run", width=10, command=lambda:excel_run_threadsafe())
+close_btn = tk.Button(btn_frame, text="Close", width=10, command=root.destroy)
+run_btn.grid(row=0, column=1, padx=5); close_btn.grid(row=0, column=2, padx=5)
+global_buttons += [run_btn, close_btn]
+
+###~~~~ IMPORT TAB ~~~~###
+tk.Label(import_frame, text="Import all .xls files from folder", font=("Helvetica",14,"bold")).grid(row=0, column=0, columnspan=3, pady=(0,8), sticky="w")
+tk.Label(import_frame, text="Folder:").grid(row=1, column=0, sticky='e', padx=4)
+tk.Entry(import_frame, textvariable=import_dir_var, width=50).grid(row=1, column=1, sticky='ew', pady=4)
+tk.Button(import_frame, text="Browse…", command=lambda:select_folder(import_dir_var)).grid(row=1, column=2, padx=4)
+tk.Label(import_frame, text="Logs:").grid(row=2, column=0, sticky='nw', padx=4, pady=4)
+import_start_btn = tk.Button(import_frame, text="Start Import", command=lambda:import_all_threadsafe())
+import_stop_btn = tk.Button(import_frame, text="Stop", command=lambda:import_abort.set(True), state='disabled')
+import_start_btn.grid(row=3, column=1, pady=(10,0))
+import_stop_btn.grid(row=3, column=2, pady=(10,0))
+global_buttons += [import_start_btn, import_stop_btn]
+import_frame.grid_columnconfigure(1, weight=1); import_frame.grid_rowconfigure(2, weight=1)
+
+###~~~~ SELENIUM TAB (Code #1) ~~~~###
+tk.Label(selenium_frame, text="Automated Upload with Selenium", font=("Helvetica",14,"bold")).pack(anchor='w', pady=(0,8))
+tk.Label(selenium_frame, text="(Full RPA automation. See README for details.)").pack(anchor='w')
+# Add your custom fields here as desired, or simply use code #1’s own layout
+
+selenium_start_btn = tk.Button(selenium_frame, text="Run Selenium Upload", command=lambda:selenium_run_threadsafe())
+selenium_stop_btn  = tk.Button(selenium_frame, text="Stop", command=lambda:selenium_abort.set(True), state='disabled')
+selenium_start_btn.pack(pady=8, anchor='center', side='left')
+selenium_stop_btn.pack(pady=8, anchor='center', side='left')
+global_buttons += [selenium_start_btn, selenium_stop_btn]
+
+# ---- Universal log panel at bottom ----
+log_widget = ScrolledText(root, width=120, height=12, state='disabled')
+log_widget.grid(row=1, column=0, sticky="ew", padx=12, pady=(0, 6))
+
+# ---- Helper: disable/enable tabs/buttons ----
+def set_controls(enabled: bool):
+    state = "normal" if enabled else "disabled"
+    for btn in global_buttons:
+        btn.config(state=state)
+    if enabled:
+        notebook.tab(0, state="normal"); notebook.tab(1, state="normal"); notebook.tab(2, state="normal")
+    else:
+        notebook.tab(0, state="disabled"); notebook.tab(1, state="disabled"); notebook.tab(2, state="disabled")
+    root.update_idletasks()
+
+# ---- Excel Tab Logic ----
+def select_folder(var):
+    folder = filedialog.askdirectory(initialdir=var.get())
+    if folder: var.set(folder)
+
+def excel_run_threadsafe():
+    set_controls(False)
+    threading.Thread(target=excel_run, daemon=True).start()
+
+def excel_run():
+    try:
+        cid_raw = course_id_text.get('1.0', 'end').strip()
+        add_info_raw = add_info_text.get('1.0', 'end').strip()
+        role     = role_entry.get().strip()
+        folder  = save_dir_var.get().strip()
+        os.makedirs(folder, exist_ok=True)
+        mode    = mode_var.get()
+        emails  = parse_emails(email_text.get('1.0', 'end'))
+    
+        if not os.path.isdir(folder):
+            log("❌ Could not create Save Folder.")
+            return
+
+        if mode == 'student':
+            name = course_name_entry.get().strip()
+            # also require a role and some additional info
+            if not (emails and cid_raw and name and role and add_info_raw):
+                log("❌ Please fill Course Name, Course ID, Role, Emails AND Additional Info."); 
+                return
+            # pass role + add_info_raw into build_student_file
+            if len(cid_raw.split()) > 1 or len(add_info_raw.split()) > 1:
+                log("❌ Course IDs or Additional Info are limited to one entry!")
+                return
+            
+            path = build_student_file(folder, name, cid_raw, emails, role, add_info_raw)
+            log(f"✅ Student file generated: {path}")
+        
+        else: #staff
+            dept     = dept_entry.get().strip()
+
+            # parse on both lines and commas
+            course_ids = [
+                part.strip()
+                for line in cid_raw.splitlines()
+                for part in line.split(',')
+                if part.strip()
+            ]
+
+            add_infos = [
+                part.strip()
+                for line in add_info_raw.splitlines()
+                for part in line.split(',')
+                if part.strip()
+            ]
+            
+            if len(add_infos) != len(course_ids):
+                log("❌ You must supply exactly one Additional-Info entry per Course ID.")
+                return
+            
+            # 5) other validations
+            if not (emails and course_ids and dept and role):
+                log("❌ Please fill Department, Course IDs, Role, and Emails.")
+                return
+
+            files = build_staff_files(
+                folder,
+                dept,
+                course_ids,
+                emails,
+                role,
+                add_infos
+            )
+            log(f"✅ {len(files)} staff files generated:\n" + "\n".join(files))
+
+    finally:
+        set_controls(True)
+
+def switch_mode():
+    mode = mode_var.get()
+    if mode == 'student':
+        header_var.set(' | '.join(STUDENT_HEADERS))
+        course_name_entry.config(state='normal')
+        dept_entry.config(state='disabled')
+        role_entry.delete(0, 'end'); role_entry.insert(0, 'Learner')
+        course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', "629")
+        add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', "Course_1")
+
+    else: #staff
+        header_var.set(' | '.join(STAFF_HEADERS))
+        course_name_entry.config(state='disabled')
+        dept_entry.config(state='normal')
+        role_entry.delete(0, 'end'); role_entry.insert(0, 'Monitor')
+        course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', "629\n630\n631\n632\n633\n634\n635\n636\n637")
+        add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', "Course_1\nCourse_2\nCourse_3\nCourse_4\nCourse_5\nCourse_6\nCourse_7\nCourse_8\nCourse_9")
+
+# ---- Import Tab Logic ----
+import_abort = tk.BooleanVar(value=False)
+def import_all_threadsafe():
+    set_controls(False)
+    import_abort.set(False)
+    threading.Thread(target=import_all, daemon=True).start()
+
+def import_all():
+    folder = import_dir_var.get().strip()
+    if not os.path.isdir(folder):
+        log("❌ Please select a valid folder to import from.")
+        set_controls(True)
+        return
+    count = 0
+    for fn in os.listdir(folder):
+        if import_abort.get():
+            log(f"🛑 Import stopped by user after {count} files.")
+            break
+        if fn.lower().endswith('.xls'):
+            count += 1
+            full = os.path.join(folder, fn)
+            log(f"Uploading {fn}…")
+            # --- Insert Selenium upload logic here, e.g., call selenium_upload_file(full)
+            # Example: success = selenium_upload_file(full)
+            time.sleep(1)  # Simulate upload
+            success = True # Placeholder
+            if success:
+                log(f"✅ {fn} uploaded\n")
+            else:
+                log(f"❌ {fn} FAILED\n")
+    log("All done!" if not import_abort.get() else "Stopped early.")
+    set_controls(True)
+
+# ---- Selenium Tab Logic ----
+selenium_abort = tk.BooleanVar(value=False)
+def selenium_run_threadsafe():
+    set_controls(False)
+    selenium_abort.set(False)
+    threading.Thread(target=selenium_run, daemon=True).start()
+
+def selenium_run():
+    # Insert your entire Selenium RPA workflow here (from code #1)
+    try:
+        log("🚦 Selenium RPA started…")
+        # Example: for demonstration, just sleep
+        for i in range(10):
+            if selenium_abort.get():
+                log(f"🛑 Selenium stopped by user after step {i+1}.")
+                break
+            log(f"Step {i+1}/10…")
+            time.sleep(1)
+        log("🎉 Selenium workflow done!")
+    except Exception as e:
+        log(f"❌ Selenium error: {e}")
+    finally:
+        set_controls(True)
+
+# ---- Initialize ----
+switch_mode()
+root.update()
+root.minsize(root.winfo_width(), root.winfo_height())
+root.resizable(False, False)
+root.mainloop()

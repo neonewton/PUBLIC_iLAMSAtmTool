@@ -3,12 +3,9 @@
 # DO NOT USE !/usr/bin/env python3
 
 """
-python3 -V to check version
-pip3 install pandas xlwt selenium
-pip3 install --upgrade pip
-pip3 install --upgrade selenium
-pip3 install --upgrade tk
-
+Checklist
+1) Ensure you had done reading README.md
+2) Done pip install the requirements.txt
 """
 # Ensure you have started Chrome with:
 r"""
@@ -27,7 +24,6 @@ then
 curl http://127.0.0.1:9222/json
 
 """
-
 
 import sys, os, threading, time
 from datetime import datetime
@@ -84,7 +80,7 @@ def log(msg, newline=True):
 
 # ---- Constants for Excel ----
 STUDENT_HEADERS = ["* login", "* organisation", "* roles"]
-STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]"]
+STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]","* "]
 
 def parse_emails(text):
     emails = []
@@ -125,14 +121,19 @@ root = tk.Tk()
 root.title("LAMS RPA Tool")
 
 today_2 = datetime.now().strftime("%d%m%y")
+# for simplicity, will direct the save dir to user's downloads folder
 home = os.path.expanduser("~")
 downloads = os.path.join(home, "Downloads", f"LAMS User Import Excel_{today_2}")
+# for testing purpose, we use source code folder
+script_dir = os.path.dirname(os.path.abspath(__file__))
+output_folder = os.path.join(script_dir, os.pardir, "3 data", "output",f"LAMS User Import Excel_{today_2}")
+os.makedirs(output_folder, exist_ok=True)
 
 # --- Control variables
 mode_var    = tk.StringVar(value='staff')
 header_var  = tk.StringVar()
-save_dir_var = tk.StringVar(value=downloads)
-import_dir_var = tk.StringVar(value=downloads)
+save_dir_var = tk.StringVar(value=output_folder)
+import_dir_var = tk.StringVar(value=output_folder)
 
 # --- Grid options for Excel tab
 row_int = 0
@@ -150,13 +151,15 @@ grid_opts = {
     'emails_text':          dict(row=row_int+5, column=1, columnspan=2, sticky='nsew', pady=4),
     'courseid_label':       dict(row=row_int+6, column=0, sticky='ne', padx=4, pady=4),
     'courseid_text':        dict(row=row_int+6, column=1, columnspan=2, sticky='nsew', pady=4),
-    'coursename_label':     dict(row=row_int+7, column=0, sticky='e', padx=4),
-    'coursename_entry':     dict(row=row_int+7, column=1, columnspan=2, sticky='ew', pady=4),
-    'dept_label':           dict(row=row_int+8, column=0, sticky='e', padx=4),
-    'dept_entry':           dict(row=row_int+8, column=1, columnspan=2, sticky='ew', pady=4),
-    'role_label':           dict(row=row_int+9, column=0, sticky='e', padx=4),
-    'role_entry':           dict(row=row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
-    'buttons_frame':        dict(row=row_int+10, column=0, columnspan=3, sticky='ew', pady=10),
+    'add_info_label':     dict(row=row_int+7, column=0, sticky='ne', padx=4, pady=4),
+    'add_info_entry':     dict(row=row_int+7, column=1, columnspan=2, sticky='nsew', pady=4),
+    'coursename_label':     dict(row=row_int+8, column=0, sticky='e', padx=4),
+    'coursename_entry':     dict(row=row_int+8, column=1, columnspan=2, sticky='ew', pady=4),
+    'dept_label':           dict(row=row_int+9, column=0, sticky='e', padx=4),
+    'dept_entry':           dict(row=row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
+    'role_label':           dict(row=row_int+10, column=0, sticky='e', padx=4),
+    'role_entry':           dict(row=row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
+    'buttons_frame':        dict(row=row_int+11, column=0, columnspan=3, sticky='ew', pady=10),
 }
 
 # --- TTK Notebook for Tabs ---
@@ -168,9 +171,11 @@ root.grid_columnconfigure(0, weight=1)
 excel_frame  = tk.Frame(notebook, padx=15, pady=15)
 import_frame = tk.Frame(notebook, padx=15, pady=15)
 selenium_frame = tk.Frame(notebook, padx=15, pady=15)
+about_frame = tk.Frame(notebook, padx=15, pady=15)
 notebook.add(excel_frame, text="Excel")
 notebook.add(import_frame, text="Import")
 notebook.add(selenium_frame, text="Upload Elentra Link")
+notebook.add(about_frame, text="About")
 
 # ---- Global widgets for later disable/enable ----
 global_buttons = []
@@ -189,9 +194,11 @@ tk.Label(excel_frame, text="Emails:").grid(**grid_opts['emails_label'])
 email_text = tk.Text(excel_frame, width=1, height=8); email_text.grid(**grid_opts['emails_text'])
 email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\n")
 tk.Label(excel_frame, text="Course ID:").grid(**grid_opts['courseid_label'])
-course_id_text = tk.Text(excel_frame, width=1, height=8); course_id_text.grid(**grid_opts['courseid_text']); course_id_text.insert('1.0', "580")
+course_id_text = tk.Text(excel_frame, width=1, height=8); course_id_text.grid(**grid_opts['courseid_text']); course_id_text.insert('1.0', "580\n581")
 tk.Label(excel_frame, text="Course Name:").grid(**grid_opts['coursename_label'])
 course_name_entry = tk.Entry(excel_frame, width=61); course_name_entry.grid(**grid_opts['coursename_entry']); course_name_entry.insert(0, "Test_Course_Name")
+tk.Label(excel_frame, text="Additional Info:").grid(**grid_opts['add_info_label'])
+add_info_text = tk.Text(excel_frame, width=1, height=8); add_info_text.grid(**grid_opts['add_info_entry']); add_info_text.insert('1.0', "Course 1 name \n Course 2 name")
 tk.Label(excel_frame, text="Department:").grid(**grid_opts['dept_label'])
 dept_entry = tk.Entry(excel_frame, width=61); dept_entry.grid(**grid_opts['dept_entry']); dept_entry.insert(0, "Test_Department")
 tk.Label(excel_frame, text="Role:").grid(**grid_opts['role_label'])
@@ -342,6 +349,11 @@ def selenium_run():
         log(f"❌ Selenium error: {e}")
     finally:
         set_controls(True)
+
+
+
+
+
 
 # ---- Initialize ----
 switch_mode()
