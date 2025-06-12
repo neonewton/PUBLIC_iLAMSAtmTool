@@ -28,10 +28,14 @@ curl http://127.0.0.1:9222/json
 import sys, os, threading, time
 from datetime import datetime
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+#from tkinter import ttk
+from tkinter import messagebox, filedialog
 from tkinter.scrolledtext import ScrolledText
 import pandas as pd
 import xlwt
+import ttkbootstrap as tb
+from ttkbootstrap import ttk , Style, Window
+
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -72,7 +76,7 @@ print("⏳ Waiting for user input ⏳")
 
 #global Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Lesson_Title_entry, Upload_Monitor_URL_checkbox, Upload_Student_URL_checkbox
 
-# ---- Universal logger function ----
+# ---- UI Global Log Universal logger function ----
 def log(msg, newline=True):
     log_widget.config(state='normal')
     log_widget.insert('end', msg + ('\n' if newline else ''))
@@ -135,18 +139,51 @@ def build_staff_files(folder, department, course_ids, emails, role_entry, add_in
         files.append(save_xls(folder, fname, STAFF_HEADERS, rows))
     return files
 
-# ---- Tkinter Setup ----
-root = tk.Tk()
-root.title("LAMS RPA Tool")
+# ---- UI Tkinter Setup ----
+#root = tk.Tk()
+root = Window(themename="cosmo") 
+style = Style(theme="cosmo")
+
+root.title("LAMS Automation Tool")
+
+#branding colour purple
+style.configure("secondary.TButton", background="#5C004D", foreground="#ffffff")
+style.configure("secondary.TCheckbutton", background="#5C004D", foreground="#ffffff")
 
 today_2 = datetime.now().strftime("%d%m%y")
 # for simplicity, will direct the save dir to user's downloads folder
 home = os.path.expanduser("~")
-downloads = os.path.join(home, "Downloads", f"LAMS User Import Excel_{today_2}")
+downloads = os.path.join(home, "Downloads", f"User Excel Generation_{today_2}")
 # for testing purpose, we use source code folder
 script_dir = os.path.dirname(os.path.abspath(__file__))
-output_folder = os.path.join(script_dir, os.pardir, "3 data", "output",f"LAMS User Import Excel_{today_2}")
+output_folder = os.path.join(script_dir, os.pardir, "3 data", "output",f"LAMS User Excel Generation_{today_2}")
 os.makedirs(output_folder, exist_ok=True)
+
+
+# --- TTK Notebook for Tabs ---
+notebook = ttk.Notebook(root)
+notebook.grid(row=0, column=0, sticky="nsew")
+root.grid_rowconfigure(0, weight=0)   # notebook row no longer expands
+root.grid_rowconfigure(5, weight=1)   # log row soaks up all extra space
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=1)
+
+# excel_frame  = tk.Frame(notebook, padx=5, pady=5)
+# import_frame = tk.Frame(notebook, padx=5, pady=5)
+# selenium_frame = tk.Frame(notebook, padx=5, pady=5)
+excel_frame   = ttk.Frame(notebook, padding=5)
+import_frame  = ttk.Frame(notebook, padding=5)
+selenium_frame= ttk.Frame(notebook, padding=5)
+#about_frame = tk.Frame(notebook, padx=15, pady=15)
+#Order
+notebook.add(selenium_frame, text="Elentra Link Upload")
+notebook.add(import_frame, text="User Import")
+notebook.add(excel_frame, text="User Excel Generation")
+
+#notebook.add(about_frame, text="About")
+
+# ---- Global widgets for later disable/enable ----
+global_buttons = []
 
 # --- Control variables
 mode_var    = tk.StringVar(value='staff')
@@ -163,125 +200,187 @@ excel_grid_opts = {
     'instruction_label':    dict(row=excel_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
     'mode_staff_rb':        dict(row=excel_row_int+2, column=0, padx=8, pady=4, sticky='w'),
     'mode_student_rb':      dict(row=excel_row_int+2, column=1, padx=8, pady=4, sticky='w'),
-    'save_label':           dict(row=excel_row_int+3, column=0, sticky='e', padx=4),
-    'save_entry':           dict(row=excel_row_int+3, column=1, columnspan=2, sticky='ew', pady=4),
-    'browse_btn':           dict(row=excel_row_int+3, column=3, sticky= 'e', padx=4),
-    'header_text_label':    dict(row=excel_row_int+4, column=0, sticky='e', padx=4),
-    'header_label':         dict(row=excel_row_int+4, column=1, columnspan=2, sticky='w'),
-    'emails_label':         dict(row=excel_row_int+5, column=0, sticky='ne', padx=4, pady=4),
-    'emails_text':          dict(row=excel_row_int+5, column=1, columnspan=2, sticky='nsew', pady=4),
-    'courseid_label':       dict(row=excel_row_int+6, column=0, sticky='ne', padx=4, pady=4),
-    'courseid_text':        dict(row=excel_row_int+6, column=1, columnspan=2, sticky='nsew', pady=4),
-    'add_info_label':       dict(row=excel_row_int+7, column=0, sticky='ne', padx=4, pady=4),
-    'add_info_entry':       dict(row=excel_row_int+7, column=1, columnspan=2, sticky='nsew', pady=4),
-    'coursename_label':     dict(row=excel_row_int+8, column=0, sticky='e', padx=4),
-    'coursename_entry':     dict(row=excel_row_int+8, column=1, columnspan=2, sticky='ew', pady=4),
-    'dept_label':           dict(row=excel_row_int+9, column=0, sticky='e', padx=4),
-    'dept_entry':           dict(row=excel_row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
-    'role_label':           dict(row=excel_row_int+10, column=0, sticky='e', padx=4),
-    'role_entry':           dict(row=excel_row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
-    'excel_buttons_frame':  dict(row=excel_row_int+11, column=0, columnspan=3, sticky='ew', pady=10),
+    #'save_label':           dict(row=excel_row_int+3, column=0, sticky='e', padx=4),
+    # 'browse_btn':           dict(row=excel_row_int+3, column=0, sticky= 'ew', padx=4, pady=4),
+    # 'save_entry':           dict(row=excel_row_int+4, column=0, columnspan=2, sticky='ew', padx=4, pady=4),
+    'browse_btn':           dict(row=excel_row_int+3, column=0, sticky= 'ew', padx=4, pady=4),
+    'save_entry':           dict(row=excel_row_int+3, column=1, columnspan=2, sticky='ew', padx=4, pady=4),
+    'header_text_label':    dict(row=excel_row_int+5, column=0, sticky='ne', padx=4),
+    'header_label':         dict(row=excel_row_int+5, column=1, columnspan=2, sticky='w'),
+    'emails_label':         dict(row=excel_row_int+6, column=0, sticky='ne', padx=4, pady=4),
+    'emails_text':          dict(row=excel_row_int+6, column=1, columnspan=2, sticky='nsew', pady=4),
+    'courseid_label':       dict(row=excel_row_int+7, column=0, sticky='ne', padx=4, pady=4),
+    'courseid_text':        dict(row=excel_row_int+7, column=1, columnspan=2, sticky='nsew', pady=4),
+    'add_info_label':       dict(row=excel_row_int+8, column=0, sticky='ne', padx=4, pady=4),
+    'add_info_entry':       dict(row=excel_row_int+8, column=1, columnspan=2, sticky='nsew', pady=4),
+    'coursename_label':     dict(row=excel_row_int+9, column=0, sticky='e', padx=4),
+    'coursename_entry':     dict(row=excel_row_int+9, column=1, columnspan=2, sticky='ew', pady=4),
+    'dept_label':           dict(row=excel_row_int+10, column=0, sticky='e', padx=4),
+    'dept_entry':           dict(row=excel_row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
+    'role_label':           dict(row=excel_row_int+11, column=0, sticky='e', padx=4),
+    'role_entry':           dict(row=excel_row_int+11, column=1, columnspan=2, sticky='ew', pady=4),
+    'excel_btn_frame':      dict(row=excel_row_int+12, column=0, columnspan=3, sticky='w', pady=20),
 }
 
-# --- TTK Notebook for Tabs ---
-notebook = ttk.Notebook(root)
-notebook.grid(row=0, column=0, sticky="nsew")
-root.grid_rowconfigure(0, weight=0)   # notebook row no longer expands
-root.grid_rowconfigure(5, weight=1)   # log row soaks up all extra space
-root.grid_columnconfigure(0, weight=1)
-root.grid_columnconfigure(1, weight=1)
+sample_course_id_text="629\n630\n631\n632\n633\n634\n635\n636\n637"
+sample_course_name_text="LKC TESTING SANDBOX 2025/2026\nCohort_2025Y1\nCohort_2024Y2\nCohort_2023Y3_Misc\nCohort_2023Y3_Posting_Quiz\nCohort_2023Y3_eModules\nCohort_2022Y4_Misc\nCohort_2022Y4_Posting_Quiz\nCohort_2021Y5_Misc"
 
-excel_frame  = tk.Frame(notebook, padx=5, pady=5)
-import_frame = tk.Frame(notebook, padx=5, pady=5)
-selenium_frame = tk.Frame(notebook, padx=5, pady=5)
-#about_frame = tk.Frame(notebook, padx=15, pady=15)
-notebook.add(selenium_frame, text="Upload Elentra Link")
-notebook.add(excel_frame, text="Excel")
-notebook.add(import_frame, text="Import")
-#notebook.add(about_frame, text="About")
+###~~~~ GUI EXCEL TAB ~~~~###
+tk.Label(excel_frame, text="/ User Excel Generation Automation", font=("Helvetic",14,"bold")).grid(**excel_grid_opts['title_label'])
+tk.Label(excel_frame, text="Build the Staff or Student Excel file (.xlsx) for User Import in LAMS Admin.").grid(**excel_grid_opts['instruction_label'])
+ttk.Radiobutton(excel_frame, bootstyle="info", text="Staff List", variable=mode_var, value='staff', command=lambda:switch_mode()).grid(**excel_grid_opts['mode_staff_rb'])
+ttk.Radiobutton(excel_frame, bootstyle="info", text="Student List", variable=mode_var, value='student', command=lambda:switch_mode()).grid(**excel_grid_opts['mode_student_rb'])
+#tk.Label(excel_frame, text="Save Folder:").grid(**excel_grid_opts['save_label'])
 
-# ---- Global widgets for later disable/enable ----
-global_buttons = []
-
-###~~~~ EXCEL TAB ~~~~###
-tk.Label(excel_frame, text="LAMS User Import Excel", font=("Helvetic",14,"bold")).grid(**excel_grid_opts['title_label'])
-tk.Label(excel_frame, text="Build an Excel file for LAMS user import that lets you choose between Student and Staff lists.").grid(**excel_grid_opts['instruction_label'])
-tk.Radiobutton(excel_frame, text="Staff List", variable=mode_var, value='staff', command=lambda:switch_mode()).grid(**excel_grid_opts['mode_staff_rb'])
-tk.Radiobutton(excel_frame, text="Student List", variable=mode_var, value='student', command=lambda:switch_mode()).grid(**excel_grid_opts['mode_student_rb'])
-tk.Label(excel_frame, text="Save Folder:").grid(**excel_grid_opts['save_label'])
+ttk.Button(excel_frame, style="secondary.Tbutton", text="Step 1: Browse..", command=lambda:select_folder(save_dir_var)).grid(**excel_grid_opts['browse_btn'])
 tk.Entry(excel_frame, textvariable=save_dir_var).grid(**excel_grid_opts['save_entry'])
-tk.Button(excel_frame, text="Browse…", command=lambda:select_folder(save_dir_var)).grid(**excel_grid_opts['browse_btn'])
 tk.Label(excel_frame, text="Header:").grid(**excel_grid_opts['header_text_label'])
 tk.Label(excel_frame, textvariable=header_var, fg='dark gray').grid(**excel_grid_opts['header_label'])
 tk.Label(excel_frame, text="Emails:").grid(**excel_grid_opts['emails_label'])
-email_text = tk.Text(excel_frame, width=1, height=8); email_text.grid(**excel_grid_opts['emails_text'])
-email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\n")
+email_text = tk.Text(excel_frame, width=1, height=5); email_text.grid(**excel_grid_opts['emails_text'])
+email_text.insert('1.0', "user1@email.com\nuser2@email.com\nuser3@email.com\nnelton.tan@ntu.edu.sg")
 tk.Label(excel_frame, text="Course ID:").grid(**excel_grid_opts['courseid_label'])
-course_id_text = tk.Text(excel_frame, width=1, height=8); course_id_text.grid(**excel_grid_opts['courseid_text']); course_id_text.insert('1.0', "629\n630\n631\n632\n633\n634\n635\n636\n637")
+course_id_text = tk.Text(excel_frame, width=1, height=5); course_id_text.grid(**excel_grid_opts['courseid_text']); 
+#course_id_text.insert('1.0', sample_course_id_text)
 tk.Label(excel_frame, text="Course Name:").grid(**excel_grid_opts['coursename_label'])
 course_name_entry = tk.Entry(excel_frame, width=61); course_name_entry.grid(**excel_grid_opts['coursename_entry']); course_name_entry.insert(0, "Cohort_Test_Name")
 tk.Label(excel_frame, text="Additional Info:").grid(**excel_grid_opts['add_info_label'])
-add_info_text = tk.Text(excel_frame, width=1, height=8); add_info_text.grid(**excel_grid_opts['add_info_entry']); add_info_text.insert('1.0', "Course_1\nCourse_2\nCourse_3\nCourse_4\nCourse_5\nCourse_6\nCourse_7\nCourse_8\nCourse_9")
+add_info_text = tk.Text(excel_frame, width=1, height=5); add_info_text.grid(**excel_grid_opts['add_info_entry']); 
+#add_info_text.insert('1.0', sample_course_name_text)
 tk.Label(excel_frame, text="Department:").grid(**excel_grid_opts['dept_label'])
-dept_entry = tk.Entry(excel_frame, width=61); dept_entry.grid(**excel_grid_opts['dept_entry']); dept_entry.insert(0, "Test_Department")
+dept_entry = tk.Entry(excel_frame, width=61); dept_entry.grid(**excel_grid_opts['dept_entry']); 
+dept_entry.insert(0, "Test_Department")
 tk.Label(excel_frame, text="Role:").grid(**excel_grid_opts['role_label'])
-role_entry = tk.Entry(excel_frame, width=1); role_entry.grid(**excel_grid_opts['role_entry']); role_entry.insert(0, 'Learner')
-btn_frame = tk.Frame(excel_frame); 
-btn_frame.grid(**excel_grid_opts['excel_buttons_frame'])
-btn_frame.grid_columnconfigure(0, weight=1); 
-btn_frame.grid_columnconfigure(3, weight=1)
-excel_run_btn = tk.Button(btn_frame, text="Run Excel", width=10, command=lambda:excel_run_threadsafe())
-excel_close_btn = tk.Button(btn_frame, text="Close Program", width=10, command=root.destroy)
-excel_run_btn.grid  (row=0, column=1, **btn_opts)
-excel_close_btn.grid(row=0, column=2, **btn_opts)
-global_buttons += [excel_run_btn, excel_close_btn]
+role_entry = tk.Entry(excel_frame, width=1); role_entry.grid(**excel_grid_opts['role_entry']); 
+# role_entry.insert(0, 'Learner')
+excel_btn_frame = tk.Frame(excel_frame); 
+excel_btn_frame.grid(**excel_grid_opts['excel_btn_frame'])
+excel_btn_frame.grid_columnconfigure(0, weight=1); 
+excel_btn_frame.grid_columnconfigure(3, weight=1)
+excel_run_btn = ttk.Button(excel_btn_frame, style="secondary.Tbutton", text="Step 2: Run Excel", command=lambda:excel_run_threadsafe())
+excel_run_btn.grid  (row=0, column=1, sticky='ew',**btn_opts)
+#excel_close_btn.grid(row=0, column=2, **btn_opts)
+#excel_close_btn = ttk.Button(btn_frame, bootstyle="dark-outline", text="Close Program", width=10, command=root.destroy)
+global_buttons += [excel_run_btn]
 
-###~~~~ IMPORT TAB ~~~~###
-tk.Label(import_frame, text="Import all .xls files from folder", font=("Helvetica",14,"bold")).grid(row=0, column=0, columnspan=3, pady=(0,8), sticky="w")
-tk.Label(import_frame, text="Folder:").grid(row=1, column=0, sticky='e', padx=4)
-tk.Entry(import_frame, textvariable=import_dir_var, width=50).grid(row=1, column=1, sticky='ew', pady=4)
-tk.Button(import_frame, text="Browse…", command=lambda:select_folder(import_dir_var)).grid(row=1, column=2, padx=4)
-tk.Label(import_frame, text="Logs:").grid(row=2, column=0, sticky='nw', padx=4, pady=4)
+
+###~~~~ GUI IMPORT TAB ~~~~###
+import_row_int = 0
+import_grid_opts = {
+    'title_label':          dict(row=import_row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'instruction_label':    dict(row=import_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'folder_browse':        dict(row=import_row_int+2, column=0, padx=4, pady=4, sticky='w'),
+    'folder_entry':         dict(row=import_row_int+3, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
+    'Scan_btn':             dict(row=import_row_int+4, column=0, columnspan=2, padx=4, pady=4, sticky='w'),
+    'to_import_log_box':    dict(row=import_row_int+5, column=0, columnspan=3, padx=4, pady=4, sticky='ew'),
+    'imp_btn_frame':        dict(row=import_row_int+8, column=0, columnspan=3, pady=20, sticky='w'),
+    
+}
+
+# import_frame.grid_columnconfigure(1, weight=1); 
+# import_frame.grid_rowconfigure(2, weight=1)
+#import_frame.grid(sticky='nsew')
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
+# Title + instruction
+tk.Label(import_frame, text="/ User Import Automation", font=("Helvetic",14,"bold")).grid(**import_grid_opts['title_label'])
+tk.Label(import_frame, text="Build the Staff or Student Excel file (.xlsx) for User Import in LAMS Admin.").grid(**import_grid_opts['instruction_label'])
+# Folder picker
+#tk.Label(import_frame, text="Folder:").grid(**import_grid_opts['folder_label'])
+ttk.Button(import_frame, style="secondary.Tbutton", text="Step1 : Browse…", command=lambda:select_folder(import_dir_var)).grid(**import_grid_opts['folder_browse'])
+tk.Entry(import_frame, textvariable=import_dir_var, width=45).grid(**import_grid_opts['folder_entry'])
+# “Scan files” button
+ttk.Button(import_frame, style="secondary.Tbutton", text="Step 2: Scan files to import", command=lambda: scan_files_to_import()).grid(**import_grid_opts['Scan_btn'])
+# ScrolledText log area
+to_import_box = ScrolledText(import_frame, wrap="word", width=45, height=15, state="disabled").grid(**import_grid_opts['to_import_log_box'])
+
+# freeze the folder row (row 2) and the scan‐button row (row 3)
+#import_frame.grid_rowconfigure(import_grid_opts['folder_label']['row'], weight=0)
+#import_frame.grid_rowconfigure(import_grid_opts['scan_btn']['row'], weight=0)
+
+# let only the “to_import_box” row expand
+#import_frame.grid_rowconfigure(import_grid_opts['to_import_box']['row'], weight=1)
+
+# let the middle column (the Entry + log box) grow when the window is wider
+#import_frame.grid_columnconfigure(import_grid_opts['folder_entry']['column'], weight=1)
+
 
 # — Import buttons (grid) —
-imp_frame = tk.Frame(import_frame); 
-imp_frame.grid(row=8, column=0, columnspan=3, sticky='ew', pady=10)
-imp_frame.grid_columnconfigure(0, weight=1); 
-imp_frame.grid_columnconfigure(3, weight=1)
-import_start_btn = tk.Button(imp_frame, text="Run Import", width=10, command=lambda:import_all_threadsafe())
-import_stop_btn = tk.Button(imp_frame, text="Stop Import", width=10, command=lambda:import_abort.set(True), state='disabled')
-import_close_btn = tk.Button(imp_frame, text="Close Program", width=10, command=root.destroy)
-import_start_btn.grid(row=0, column=1, **btn_opts)
-import_stop_btn.grid( row=0, column=2, **btn_opts)
-import_close_btn.grid(row=0, column=3, **btn_opts)
+imp_btn_frame = tk.Frame(import_frame); 
+imp_btn_frame.grid(**import_grid_opts['imp_btn_frame'])
+imp_btn_frame.grid_columnconfigure(0, weight=1); 
+# imp_frame.grid_columnconfigure(3, weight=1)
+import_start_btn = ttk.Button(imp_btn_frame, style="secondary.Tbutton", text="Step 3: Run Import", command=lambda:import_all_threadsafe())
+import_stop_btn = ttk.Button(imp_btn_frame, bootstyle="dark-outline", text="Stop Import", command=lambda:import_abort.set(True), state='disabled')
+#import_close_btn = ttk.Button(imp_frame, bootstyle="dark-outline", text="Close Program", width=10, command=root.destroy)
+import_start_btn.grid(row=0, column=1, sticky='ew', **btn_opts)
+import_stop_btn.grid( row=0, column=2, sticky='ew', **btn_opts)
+#import_close_btn.grid(row=0, column=3, **btn_opts)
 
-global_buttons += [import_start_btn, import_stop_btn, import_close_btn]
-import_frame.grid_columnconfigure(1, weight=1); 
-import_frame.grid_rowconfigure(2, weight=1)
+global_buttons += [import_start_btn, import_stop_btn]
 
-###~~~~ SELENIUM TAB (Code #1) ~~~~###
+
+###~~~~ GUI Elentra Link Upload TAB (Code #1) ~~~~###
 sel_row_int = 0
 sel_pad = dict(padx=8, pady=6)
 sel_grid_opts = {
-    'title_label':                  dict(row=sel_row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
-    'instruction_label':            dict(row=sel_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
-    'Elentra_Event_ID':             dict(row=sel_row_int+2, column=0, padx=8, pady=4, sticky='w'),
-    'Elentra_Event_entry':          dict(row=sel_row_int+2, column=1, padx=8, pady=4, sticky='ew'),
-    'LAMS_Lesson_ID':               dict(row=sel_row_int+3, column=0, padx=8, pady=4, sticky='w'),
-    'LAMS_Lesson_ID_entry':         dict(row=sel_row_int+3, column=1, padx=8, pady=4, sticky='ew'),
-    'LAMS_Lesson_Title':            dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='w'),
-    'LAMS_Lesson_Title_entry':      dict(row=sel_row_int+4, column=1, padx=8, pady=4, sticky='ew'),
-    #'Upload_Monitor_URL':           dict(row=sel_row_int+5, column=0, padx=8, pady=4, sticky='w'),
-    'Upload_Monitor_URL_checkbox':  dict(row=sel_row_int+5, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
-    #'Upload_Student_URL':           dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='w'),
-    'Upload_Student_URL_checkbox':  dict(row=sel_row_int+6, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
+    'title_label':                  dict(row=sel_row_int+0, column=0, columnspan=2, padx=10, pady=4, sticky='w'),
+    'instruction_label':            dict(row=sel_row_int+1, column=0, columnspan=2, padx=10, pady=4, sticky='w'),
+    'instruction_box':              dict(row=sel_row_int+2, column=0, columnspan=2, padx=4, pady=4, sticky='ew'),
+    'step':                         dict(row=sel_row_int+3, column=0, columnspan=2, padx=4, pady=4, sticky='w'),
+    'Elentra_Event_ID':             dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='w'),
+    'Elentra_Event_entry':          dict(row=sel_row_int+4, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
+    'LAMS_Lesson_ID':               dict(row=sel_row_int+5, column=0, padx=8, pady=4, sticky='w'),
+    'LAMS_Lesson_ID_entry':         dict(row=sel_row_int+5, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
+    'LAMS_Lesson_Title':            dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='w'),
+    'LAMS_Lesson_Title_entry':      dict(row=sel_row_int+6, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
+    'Upload_Monitor_URL_checkbox':  dict(row=sel_row_int+7, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
+    'Upload_Student_URL_checkbox':  dict(row=sel_row_int+8, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
+    'sel_btn_frame':                dict(row=sel_row_int+10, column=0, columnspan=2, pady=20, sticky='w')
 }
 
+expandbox = tk.PanedWindow(selenium_frame, orient=tk.HORIZONTAL,sashrelief='raised')
+expandbox.grid(**sel_grid_opts['instruction_box'])
+
+instruction_mac_text = r"""
+MAC:
+open -a "Google Chrome" --args \\
+    --remote-debugging-port=9222 \\
+    --user-data-dir="$HOME/chrome-debug-profile"
+
+then
+
+curl http://127.0.0.1:9222/json
+"""
+instruction_win_text = r"""
+WINDOWS:
+& 'C:\Program Files\Google\Chrome\Application\chrome.exe' `
+  --remote-debugging-port=9222 `
+  --user-data-dir="C:\Users\Neone\chrome-debug-profile"
+
+then
+
+curl http://127.0.0.1:9222/json
+"""
+selenium_frame.grid_rowconfigure(sel_grid_opts['instruction_box']['row'], weight=0)
+selenium_frame.grid_columnconfigure(0, weight=1)
 selenium_frame.grid_columnconfigure(1, weight=1)
-selenium_frame.grid_columnconfigure(1, weight=1)
-tk.Label(selenium_frame, text="Automated Upload with Selenium", font=("Helvetica",14,"bold")).grid(**sel_grid_opts['title_label'])
+selenium_frame.grid_columnconfigure(2, weight=1)
+
+
+tk.Label(selenium_frame, text="/ Elentra Link Upload Automation", font=("Helvetica",14,"bold")).grid(**sel_grid_opts['title_label'])
 tk.Label(selenium_frame, text="Ensure you are logged into chrome and downloaded the webdriver before executing").grid(**sel_grid_opts['instruction_label'])
-tk.Label(selenium_frame, text="Elentra Event ID:").grid(**sel_grid_opts['Elentra_Event_ID'])
+label_mac = tk.Text(expandbox, wrap="word", font=("Helvetica", 10), height=10, width=40, bd=0, padx=10, pady=8)
+label_win = tk.Text(expandbox, wrap="word", font=("Helvetica", 10), height=10, width=50, bd=0, padx=10, pady=8)
+label_mac.insert("1.0", instruction_mac_text)
+label_win.insert("1.0", instruction_win_text)
+label_mac.configure(state="disabled")
+label_win.configure(state="disabled")
+expandbox.add(label_mac)
+expandbox.add(label_win)
+tk.Label(selenium_frame, text="Step 1: Input Parameters", font=("Helvetica",12,"bold")).grid(**sel_grid_opts['step'])
+tk.Label(selenium_frame, text=" Elentra Event ID:", width=10).grid(**sel_grid_opts['Elentra_Event_ID'])
 Elentra_Event_entry = tk.StringVar(value="1696")
 Elentra_Event_label = tk.Entry(selenium_frame,textvariable=Elentra_Event_entry)
 Elentra_Event_label.grid(**sel_grid_opts['Elentra_Event_entry'])
@@ -297,33 +396,35 @@ LAMS_Lesson_Title_label = tk.Entry(selenium_frame, textvariable=LAMS_Lesson_Titl
 LAMS_Lesson_Title_label.grid(**sel_grid_opts['LAMS_Lesson_Title_entry'])
 #LAMS_Lesson_Title_entry.insert('1.0', "(RPA test)FM_MiniQuiz_WomanHealth_DDMMYY")
 Upload_Monitor_URL_checkbox = tk.BooleanVar(value=True) 
-Upload_Monitor_URL_icon = tk.Checkbutton(selenium_frame, text="Upload Monitor URL", variable=Upload_Monitor_URL_checkbox)
+Upload_Monitor_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Monitor URL", variable=Upload_Monitor_URL_checkbox)
 Upload_Monitor_URL_icon.grid(**sel_grid_opts['Upload_Monitor_URL_checkbox'])
 Upload_Student_URL_checkbox = tk.BooleanVar(value=True) 
-Upload_Student_URL_icon = tk.Checkbutton(selenium_frame, text="Upload Student URL", variable=Upload_Student_URL_checkbox)
+Upload_Student_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Student URL", variable=Upload_Student_URL_checkbox)
 Upload_Student_URL_icon.grid(**sel_grid_opts['Upload_Student_URL_checkbox'])
 
 
 # — Selenium buttons —
-sel_frame = tk.Frame(selenium_frame); 
-sel_frame.grid(row=8, column=0, columnspan=3, sticky='ew', pady=10)
-sel_frame.grid_columnconfigure(0, weight=1)
-sel_frame.grid_columnconfigure(3, weight=1)
-sel_start_btn = tk.Button(sel_frame, text="Run Upload", width=10, command=lambda:selenium_run_threadsafe()) #goes to run selenium_start then to run_upload_elentra_link
-sel_stop_btn  = tk.Button(sel_frame, text="Stop Upload", width=10, command=lambda:selenium_stop.set(True), state='disabled')
-sel_close_btn = tk.Button(sel_frame, text="Close Program", width=10, command=root.destroy)
-sel_start_btn.grid( row=0, column=1, **btn_opts)
-sel_stop_btn.grid(  row=0, column=2, **btn_opts)
-sel_close_btn.grid(row=0, column=3, **btn_opts)
-global_buttons += [sel_start_btn, sel_stop_btn, sel_close_btn]
+sel_btn_frame = tk.Frame(selenium_frame); 
+sel_btn_frame.grid(**sel_grid_opts['sel_btn_frame'])
+sel_btn_frame.grid_columnconfigure(0, weight=1)
+sel_btn_frame.grid_columnconfigure(3, weight=1)
+sel_start_btn = ttk.Button(sel_btn_frame, style="secondary.Tbutton", text="Step 2: Run Upload", command=lambda:selenium_run_threadsafe()) #goes to run selenium_start then to run_upload_elentra_link
+sel_stop_btn  = ttk.Button(sel_btn_frame, bootstyle="dark-outline", text="Stop Upload", command=lambda:selenium_stop.set(True), state='disabled')
+#sel_close_btn = ttk.Button(sel_frame, bootstyle="dark-outline", text="Close Program", width=10, command=root.destroy)
+sel_start_btn.grid( row=0, column=1, sticky='ew', **btn_opts)
+sel_stop_btn.grid(  row=0, column=2,sticky='ew', **btn_opts)
+#sel_close_btn.grid(row=0, column=3, **btn_opts)
+global_buttons += [sel_start_btn, sel_stop_btn]
 
 ###~~~~ About TAB  ~~~~###
 
-# ---- Universal log panel at bottom ----
-log_widget = ScrolledText(root, wrap="word", height=20, state="disabled")
-log_widget.grid(row=5, column=0, columnspan=2,sticky="nsew", padx=4, pady=(0, 4))
+# ---- UI Global Log Universal log panel at bottom ----
+log_widget = ScrolledText(root, wrap="word", height=15, state="disabled")
+log_widget.grid(row=5, column=0, columnspan=3, sticky="s", padx=4, pady=4)
+#log_widget.insert('Waiting for next instructions...')
 root.grid_rowconfigure(5, weight=1)
-root.grid_columnconfigure(1, weight=1)
+#for col in (0, 1, 2):
+#    root.grid_columnconfigure(col, weight=1)
 
 # ---- Helper: disable/enable tabs/buttons ----
 def set_controls(enabled: bool):
@@ -336,7 +437,7 @@ def set_controls(enabled: bool):
         notebook.tab(0, state="disabled"); notebook.tab(1, state="disabled"); notebook.tab(2, state="disabled")
     root.update_idletasks()
 
-# ---- Excel Tab Logic ----
+# ---- Def Excel Tab Logic ----
 def select_folder(var):
     folder = filedialog.askdirectory(initialdir=var.get())
     if folder: var.set(folder)
@@ -429,16 +530,35 @@ def switch_mode():
         course_name_entry.config(state='disabled')
         dept_entry.config(state='normal')
         role_entry.delete(0, 'end'); role_entry.insert(0, 'Monitor')
-        course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', "629\n630\n631\n632\n633\n634\n635\n636\n637")
-        add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', "Course_1\nCourse_2\nCourse_3\nCourse_4\nCourse_5\nCourse_6\nCourse_7\nCourse_8\nCourse_9")
+        course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', sample_course_id_text)
+        add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', sample_course_name_text)
 
-# ---- Import Tab Logic ----
+# ---- Def Import Tab Logic ----
 import_abort = tk.BooleanVar(value=False)
 def import_all_threadsafe():
     set_controls(False)
     import_abort.set(False)
     threading.Thread(target=import_all, daemon=True).start()
     notebook.select(import_frame)
+
+# 3) The scanning function
+def scan_files_to_import():
+    folder = import_dir_var.get().strip()
+    to_import_box.config(state="normal")
+    to_import_box.delete("1.0", "end")
+
+    if not os.path.isdir(folder):
+        to_import_box.insert("end", f"❌ Invalid folder:\n    {folder}\n")
+    else:
+        files = [f for f in os.listdir(folder) if f.lower().endswith(".xls")]
+        to_import_box.insert("end", f"📂 Scanning: {folder}\n")
+        to_import_box.insert("end", f"🔢 {len(files)} file(s) found:\n")
+        for fname in files:
+            to_import_box.insert("end", f"  • {fname}\n")
+        if not files:
+            to_import_box.insert("end", "  (no .xls files in this folder)\n")
+
+    to_import_box.config(state="disabled")
 
 def import_all():
     folder = import_dir_var.get().strip()
@@ -466,7 +586,7 @@ def import_all():
     log("All done!" if not import_abort.get() else "Stopped early.")
     set_controls(True)
 
-# ---- Selenium Tab Logic ----
+# ---- Def Selenium Tab Logic ----
 selenium_abort = tk.BooleanVar(value=False)
 def selenium_run_threadsafe():
     set_controls(False)
@@ -498,8 +618,6 @@ def selenium_test():
 
     finally:
         set_controls(True)
-
-
 
 time_sleep = 0.5 #1 sec or 0.05 sec # wait x seconds between actions, for presentation purposes
 time_out = 10 #wait up to x seconds for element to be clickable
@@ -1121,7 +1239,7 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
             elapsed = time.time() - start_time
             print(f"⏱ Total elapsed time: {elapsed:.1f} seconds")
             log(f"⏱ Total elapsed time: {elapsed:.1f} seconds")
-            for w in (Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Lesson_Title_entry, Upload_Monitor_URL_checkbox, Upload_Student_URL_checkbox, sel_start_btn, sel_start_btn, sel_close_btn):
+            for w in (Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Lesson_Title_entry, Upload_Monitor_URL_checkbox, Upload_Student_URL_checkbox, sel_start_btn, sel_start_btn):
                 w.config(state="normal")
 
 # — when OK is pressed, disable inputs, queue the automation, but do NOT destroy
@@ -1169,7 +1287,7 @@ def selenium_stop():
             try:
                 driver.quit()
                 sel_start_btn.config(state="enabled")
-                sel_close_btn.config(state="enabled")
+                #sel_close_btn.config(state="enabled")
                 sel_stop_btn.config(state="enabled")
                 selenium_abort.set(False)
             except Exception:
