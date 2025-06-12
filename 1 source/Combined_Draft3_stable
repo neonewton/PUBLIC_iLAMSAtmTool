@@ -33,7 +33,6 @@ from tkinter import messagebox, filedialog
 from tkinter.scrolledtext import ScrolledText
 import pandas as pd
 import xlwt
-import ttkbootstrap as tb
 from ttkbootstrap import ttk , Style, Window
 
 
@@ -149,6 +148,7 @@ root.title("LAMS Automation Tool")
 #branding colour purple
 style.configure("secondary.TButton", background="#5C004D", foreground="#ffffff")
 style.configure("secondary.TCheckbutton", background="#5C004D", foreground="#ffffff")
+style.configure("secondary.TLabel", background="#5C004D", foreground="#ffffff")
 
 today_2 = datetime.now().strftime("%d%m%y")
 # for simplicity, will direct the save dir to user's downloads folder
@@ -379,7 +379,7 @@ label_mac.configure(state="disabled")
 label_win.configure(state="disabled")
 expandbox.add(label_mac)
 expandbox.add(label_win)
-tk.Label(selenium_frame, text="Step 1: Input Parameters", font=("Helvetica",12,"bold")).grid(**sel_grid_opts['step'])
+ttk.Label(selenium_frame, style="secondary.TLabel", text="Step 1: Input Parameters", font=("Helvetica",12)).grid(**sel_grid_opts['step'])
 tk.Label(selenium_frame, text=" Elentra Event ID:", width=10).grid(**sel_grid_opts['Elentra_Event_ID'])
 Elentra_Event_entry = tk.StringVar(value="1696")
 Elentra_Event_label = tk.Entry(selenium_frame,textvariable=Elentra_Event_entry)
@@ -396,10 +396,12 @@ LAMS_Lesson_Title_label = tk.Entry(selenium_frame, textvariable=LAMS_Lesson_Titl
 LAMS_Lesson_Title_label.grid(**sel_grid_opts['LAMS_Lesson_Title_entry'])
 #LAMS_Lesson_Title_entry.insert('1.0', "(RPA test)FM_MiniQuiz_WomanHealth_DDMMYY")
 Upload_Monitor_URL_checkbox = tk.BooleanVar(value=True) 
-Upload_Monitor_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Monitor URL", variable=Upload_Monitor_URL_checkbox)
+#Upload_Monitor_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Monitor URL", variable=Upload_Monitor_URL_checkbox)
+Upload_Monitor_URL_icon = ttk.Checkbutton(selenium_frame, bootstyle="info", text="Upload Monitor URL", variable=Upload_Monitor_URL_checkbox)
 Upload_Monitor_URL_icon.grid(**sel_grid_opts['Upload_Monitor_URL_checkbox'])
 Upload_Student_URL_checkbox = tk.BooleanVar(value=True) 
-Upload_Student_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Student URL", variable=Upload_Student_URL_checkbox)
+#Upload_Student_URL_icon = ttk.Checkbutton(selenium_frame, style="secondary.TCheckbutton", text="Upload Student URL", variable=Upload_Student_URL_checkbox)
+Upload_Student_URL_icon = ttk.Checkbutton(selenium_frame, bootstyle="info", text="Upload Student URL", variable=Upload_Student_URL_checkbox)
 Upload_Student_URL_icon.grid(**sel_grid_opts['Upload_Student_URL_checkbox'])
 
 
