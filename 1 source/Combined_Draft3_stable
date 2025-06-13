@@ -15,7 +15,6 @@ open -a "Google Chrome" --args \
   --user-data-dir="$HOME/chrome-debug-profile"
 then
 curl http://127.0.0.1:9222/json
-
 WINDOWS:
 & 'C:\Program Files\Google\Chrome\Application\chrome.exe' `
   --remote-debugging-port=9222 `
@@ -34,7 +33,7 @@ from tkinter.scrolledtext import ScrolledText
 import pandas as pd
 import xlwt
 from ttkbootstrap import ttk , Style, Window
-
+from ttkbootstrap.constants import *
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -150,6 +149,7 @@ style.configure("secondary.TButton", background="#5C004D", foreground="#ffffff")
 style.configure("secondary.TCheckbutton", background="#5C004D", foreground="#ffffff")
 style.configure("secondary.TLabel", background="#5C004D", foreground="#ffffff")
 
+
 today_2 = datetime.now().strftime("%d%m%y")
 # for simplicity, will direct the save dir to user's downloads folder
 home = os.path.expanduser("~")
@@ -167,6 +167,7 @@ root.grid_rowconfigure(0, weight=0)   # notebook row no longer expands
 root.grid_rowconfigure(5, weight=1)   # log row soaks up all extra space
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
+root.grid_columnconfigure(2, weight=1)
 
 # excel_frame  = tk.Frame(notebook, padx=5, pady=5)
 # import_frame = tk.Frame(notebook, padx=5, pady=5)
@@ -176,8 +177,8 @@ import_frame  = ttk.Frame(notebook, padding=5)
 selenium_frame= ttk.Frame(notebook, padding=5)
 #about_frame = tk.Frame(notebook, padx=15, pady=15)
 #Order
-notebook.add(selenium_frame, text="Elentra Link Upload")
 notebook.add(import_frame, text="User Import")
+notebook.add(selenium_frame, text="Elentra Link Upload")
 notebook.add(excel_frame, text="User Excel Generation")
 
 #notebook.add(about_frame, text="About")
@@ -256,7 +257,7 @@ role_entry = tk.Entry(excel_frame, width=1); role_entry.grid(**excel_grid_opts['
 excel_btn_frame = tk.Frame(excel_frame); 
 excel_btn_frame.grid(**excel_grid_opts['excel_btn_frame'])
 excel_btn_frame.grid_columnconfigure(0, weight=1); 
-excel_btn_frame.grid_columnconfigure(3, weight=1)
+excel_btn_frame.grid_columnconfigure(2, weight=1)
 excel_run_btn = ttk.Button(excel_btn_frame, style="secondary.Tbutton", text="Step 2: Run Excel", command=lambda:excel_run_threadsafe())
 excel_run_btn.grid  (row=0, column=1, sticky='ew',**btn_opts)
 #excel_close_btn.grid(row=0, column=2, **btn_opts)
@@ -270,7 +271,7 @@ import_grid_opts = {
     'title_label':          dict(row=import_row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
     'instruction_label':    dict(row=import_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
     'folder_browse':        dict(row=import_row_int+2, column=0, padx=4, pady=4, sticky='w'),
-    'folder_entry':         dict(row=import_row_int+3, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
+    'folder_entry':         dict(row=import_row_int+3, column=0, columnspan=3, padx=8, pady=4, sticky='ew'),
     'Scan_btn':             dict(row=import_row_int+4, column=0, columnspan=2, padx=4, pady=4, sticky='w'),
     'to_import_log_box':    dict(row=import_row_int+5, column=0, columnspan=3, padx=4, pady=4, sticky='ew'),
     'imp_btn_frame':        dict(row=import_row_int+8, column=0, columnspan=3, pady=20, sticky='w'),
@@ -282,6 +283,8 @@ import_grid_opts = {
 #import_frame.grid(sticky='nsew')
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=0)
+root.grid_columnconfigure(2, weight=0)
 
 # Title + instruction
 tk.Label(import_frame, text="/ User Import Automation", font=("Helvetic",14,"bold")).grid(**import_grid_opts['title_label'])
@@ -309,7 +312,7 @@ to_import_box = ScrolledText(import_frame, wrap="word", width=45, height=15, sta
 # — Import buttons (grid) —
 imp_btn_frame = tk.Frame(import_frame); 
 imp_btn_frame.grid(**import_grid_opts['imp_btn_frame'])
-imp_btn_frame.grid_columnconfigure(0, weight=1); 
+imp_btn_frame.grid_columnconfigure(0, weight=0); 
 # imp_frame.grid_columnconfigure(3, weight=1)
 import_start_btn = ttk.Button(imp_btn_frame, style="secondary.Tbutton", text="Step 3: Run Import", command=lambda:import_all_threadsafe())
 import_stop_btn = ttk.Button(imp_btn_frame, bootstyle="dark-outline", text="Stop Import", command=lambda:import_abort.set(True), state='disabled')
@@ -325,19 +328,19 @@ global_buttons += [import_start_btn, import_stop_btn]
 sel_row_int = 0
 sel_pad = dict(padx=8, pady=6)
 sel_grid_opts = {
-    'title_label':                  dict(row=sel_row_int+0, column=0, columnspan=2, padx=10, pady=4, sticky='w'),
-    'instruction_label':            dict(row=sel_row_int+1, column=0, columnspan=2, padx=10, pady=4, sticky='w'),
-    'instruction_box':              dict(row=sel_row_int+2, column=0, columnspan=2, padx=4, pady=4, sticky='ew'),
-    'step':                         dict(row=sel_row_int+3, column=0, columnspan=2, padx=4, pady=4, sticky='w'),
-    'Elentra_Event_ID':             dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='w'),
+    'title_label':                  dict(row=sel_row_int+0, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'instruction_label':            dict(row=sel_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
+    'instruction_box':              dict(row=sel_row_int+2, column=0, columnspan=3, padx=4, pady=4, sticky='ew'),
+    'step':                         dict(row=sel_row_int+3, column=0, columnspan=3, padx=4, pady=4, sticky='w'),
+    'Elentra_Event_ID':             dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='e'),
     'Elentra_Event_entry':          dict(row=sel_row_int+4, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
-    'LAMS_Lesson_ID':               dict(row=sel_row_int+5, column=0, padx=8, pady=4, sticky='w'),
+    'LAMS_Lesson_ID':               dict(row=sel_row_int+5, column=0, padx=8, pady=4, sticky='e'),
     'LAMS_Lesson_ID_entry':         dict(row=sel_row_int+5, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
-    'LAMS_Lesson_Title':            dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='w'),
+    'LAMS_Lesson_Title':            dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='e'),
     'LAMS_Lesson_Title_entry':      dict(row=sel_row_int+6, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
-    'Upload_Monitor_URL_checkbox':  dict(row=sel_row_int+7, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
-    'Upload_Student_URL_checkbox':  dict(row=sel_row_int+8, column=0, columnspan=2, padx=8, pady=4, sticky='w'),
-    'sel_btn_frame':                dict(row=sel_row_int+10, column=0, columnspan=2, pady=20, sticky='w')
+    'Upload_Monitor_URL_checkbox':  dict(row=sel_row_int+7, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
+    'Upload_Student_URL_checkbox':  dict(row=sel_row_int+8, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
+    'sel_btn_frame':                dict(row=sel_row_int+10, column=0, columnspan=3, pady=20, sticky='w')
 }
 
 expandbox = tk.PanedWindow(selenium_frame, orient=tk.HORIZONTAL,sashrelief='raised')
@@ -364,7 +367,7 @@ then
 curl http://127.0.0.1:9222/json
 """
 selenium_frame.grid_rowconfigure(sel_grid_opts['instruction_box']['row'], weight=0)
-selenium_frame.grid_columnconfigure(0, weight=1)
+selenium_frame.grid_columnconfigure(0, weight=0)
 selenium_frame.grid_columnconfigure(1, weight=1)
 selenium_frame.grid_columnconfigure(2, weight=1)
 
