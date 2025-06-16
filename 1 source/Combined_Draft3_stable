@@ -1,11 +1,33 @@
 #!/usr/local/bin/python3
-# shift cmd P to select 3.13 
-# DO NOT USE !/usr/bin/env python3
 
 """
-Checklist
-1) Ensure you had done reading README.md
-2) Done pip install the requirements.txt
+
+## SETUP / Checklist
+
+# Create virtual environment (replace `venv` with your preferred folder)
+python3 -m venv venv
+
+# Activate (macOS/Linux)
+source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Check Python Version
+python3 -V
+
+# Install Required Packages
+pip install -r requirements.txt
+
+# Python Interpreter
+Make sure your script uses the correct Python interpreter path:
+#!/usr/local/bin/python3
+In VS Code, use ⇧ + ⌘ + P → “Python: Select Interpreter” and choose Python 3.13 manually.
+
+⚠️ Avoid using:
+#!/usr/bin/env python3
+
+
 """
 # Ensure you have started Chrome with:
 r"""
@@ -43,7 +65,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
-
 
 if os.name == "nt":        # Windows
     os.system("cls")
@@ -83,8 +104,8 @@ def log(msg, newline=True):
     root.update_idletasks()
 
 # ---- Constants for Excel ----
-STUDENT_HEADERS = ["* login", "* organisation", "* roles","* add to lessons [yes/no]","* "]
-STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]","* "]
+STUDENT_HEADERS = ["* login", "* organisation", "* roles","* add to lessons [yes/no]",""]
+STAFF_HEADERS   = ["* login", "* organisation", "* roles", "* add to lessons [yes/no]",""]
 
 def parse_emails(text):
     emails = []
@@ -220,7 +241,7 @@ excel_grid_opts = {
     'dept_entry':           dict(row=excel_row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
     'role_label':           dict(row=excel_row_int+11, column=0, sticky='e', padx=4),
     'role_entry':           dict(row=excel_row_int+11, column=1, columnspan=2, sticky='ew', pady=4),
-    'excel_btn_frame':      dict(row=excel_row_int+12, column=0, columnspan=3, sticky='w', pady=20),
+    'excel_btn_frame':      dict(row=excel_row_int+12, column=0, columnspan=3, sticky='w', pady=20)
 }
 
 sample_course_id_text="629\n630\n631\n632\n633\n634\n635\n636\n637"
