@@ -1,9 +1,12 @@
 pandas
 xlwt
+
 selenium
+
 tk
 tkinter
 ttkbootstrap
 xlrd >= 2.0.1
+
 pyexcel
 pyexcel-xlsx
