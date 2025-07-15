@@ -686,6 +686,8 @@ sel_controls = [
     Elentra_Event_label, LAMS_Lesson_ID_label, LAMS_Lesson_Title_label,
     Upload_Monitor_URL_icon, Upload_Student_URL_icon]
 
+global w
+
 def set_selenium_controls(state: str):
     for w in sel_controls:
         w.config(state=state)
