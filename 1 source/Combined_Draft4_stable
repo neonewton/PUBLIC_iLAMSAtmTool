@@ -244,7 +244,9 @@ excel_grid_opts = {
     'dept_entry':           dict(row=excel_row_int+10, column=1, columnspan=2, sticky='ew', pady=4),
     'role_label':           dict(row=excel_row_int+11, column=0, sticky='e', padx=4),
     'role_entry':           dict(row=excel_row_int+11, column=1, columnspan=2, sticky='ew', pady=4),
-    'excel_btn_frame':      dict(row=excel_row_int+12, column=0, columnspan=3, sticky='w', pady=20)
+    'role_sample_label':    dict(row=excel_row_int+12, column=0, sticky='e', padx=4),
+    'role_sample':          dict(row=excel_row_int+12, column=1, sticky='w', padx=0),
+    'excel_btn_frame':      dict(row=excel_row_int+13, column=0, columnspan=3, sticky='w', pady=20)
 }
 
 sample_course_id_text="629\n630\n631\n632\n633\n634\n635\n636\n637"
@@ -268,16 +270,18 @@ tk.Label(excel_frame, text="Course ID:").grid(**excel_grid_opts['courseid_label'
 course_id_text = tk.Text(excel_frame, width=1, height=5); course_id_text.grid(**excel_grid_opts['courseid_text']); 
 #course_id_text.insert('1.0', sample_course_id_text)
 tk.Label(excel_frame, text="Course Name:").grid(**excel_grid_opts['coursename_label'])
-course_name_entry = tk.Entry(excel_frame, width=61); course_name_entry.grid(**excel_grid_opts['coursename_entry']); course_name_entry.insert(0, "Cohort_Test_Name")
+course_name_entry = tk.Entry(excel_frame, width=61); course_name_entry.grid(**excel_grid_opts['coursename_entry']); course_name_entry.insert(0, "CohortName")
 tk.Label(excel_frame, text="Additional Info:").grid(**excel_grid_opts['add_info_label'])
 add_info_text = tk.Text(excel_frame, width=1, height=5); add_info_text.grid(**excel_grid_opts['add_info_entry']); 
 #add_info_text.insert('1.0', sample_course_name_text)
 tk.Label(excel_frame, text="Department:").grid(**excel_grid_opts['dept_label'])
 dept_entry = tk.Entry(excel_frame, width=61); dept_entry.grid(**excel_grid_opts['dept_entry']); 
-dept_entry.insert(0, "Test_Department")
+dept_entry.insert(0, "DepartmentName")
 tk.Label(excel_frame, text="Role:").grid(**excel_grid_opts['role_label'])
 role_entry = tk.Entry(excel_frame, width=1); role_entry.grid(**excel_grid_opts['role_entry']); 
 # role_entry.insert(0, 'Learner')
+tk.Label(excel_frame, text="Roles available:").grid(**excel_grid_opts['role_sample_label'])
+tk.Label(excel_frame, text="author|group manager|monitor|learner").grid(**excel_grid_opts['role_sample'])
 excel_btn_frame = tk.Frame(excel_frame); 
 excel_btn_frame.grid(**excel_grid_opts['excel_btn_frame'])
 excel_btn_frame.grid_columnconfigure(0, weight=1); 
@@ -547,7 +551,7 @@ def switch_mode():
         header_var.set(' | '.join(STUDENT_HEADERS))
         course_name_entry.config(state='normal')
         dept_entry.config(state='disabled')
-        role_entry.delete(0, 'end'); role_entry.insert(0, 'Learner')
+        role_entry.delete(0, 'end'); role_entry.insert(0, 'learner')
         course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', "629")
         add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', "Course_1")
 
@@ -555,7 +559,7 @@ def switch_mode():
         header_var.set(' | '.join(STAFF_HEADERS))
         course_name_entry.config(state='disabled')
         dept_entry.config(state='normal')
-        role_entry.delete(0, 'end'); role_entry.insert(0, 'Monitor')
+        role_entry.delete(0, 'end'); role_entry.insert(0, 'monitor')
         course_id_text.delete('1.0', 'end'); course_id_text.insert('1.0', sample_course_id_text)
         add_info_text.delete('1.0', 'end'); add_info_text.insert('1.0', sample_course_name_text)
 
