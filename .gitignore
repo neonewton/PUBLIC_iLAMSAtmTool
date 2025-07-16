@@ -3,11 +3,9 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
+venv
 *.sqlite
 *.zip
 
 ~/logs
-
-/3 data
-/4 docs/DO_NOT_UPLOAD
 venv/
