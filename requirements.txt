@@ -3,7 +3,6 @@ xlwt
 
 selenium
 
-
 ttkbootstrap
 xlrd >= 2.0.1
 
