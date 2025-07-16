@@ -97,33 +97,33 @@ print("Running Bulk Courses Archived", sys.executable)
 
 # https://ilams-bk.lamsinternational.com/lams/admin/orgmanage.do?org=1
 
-# sort ID - need to click two times
-//*[@id="idsorter"]/div/div
-/html/body/div[1]/div/div/div/div[2]/div/table/thead/tr[1]/th[1]/div/div
+# # sort ID - need to click two times
+# //*[@id="idsorter"]/div/div
+# /html/body/div[1]/div/div/div/div[2]/div/table/thead/tr[1]/th[1]/div/div
 
-#first row of the course table
-//*[@id="content"]/div/div[2]/div/table/tbody/tr[1]/td[2]
-/html/body/div[1]/div/div/div/div[2]/div/table/tbody/tr[1]/td[2]/a
+# #first row of the course table
+# //*[@id="content"]/div/div[2]/div/table/tbody/tr[1]/td[2]
+# /html/body/div[1]/div/div/div/div[2]/div/table/tbody/tr[1]/td[2]/a
 
-#second row of the course table
-//*[@id="content"]/div/div[2]/div/table/tbody/tr[2]/td[2]
-/html/body/div[1]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]
+# #second row of the course table
+# //*[@id="content"]/div/div[2]/div/table/tbody/tr[2]/td[2]
+# /html/body/div[1]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]
 
-#Button of Edit
-//*[@id="editCourse"]
-/html/body/div[1]/div/div/div/div[2]/div[1]/div[1]/div/div/a[1]
+# #Button of Edit
+# //*[@id="editCourse"]
+# /html/body/div[1]/div/div/div/div[2]/div[1]/div[1]/div/div/a[1]
 
-# Status of the course
-//*[@id="stateId"]
-/html/body/div[1]/div/div/div/div[2]/form/table/tbody/tr[4]/td[2]/select
+# # Status of the course
+# //*[@id="stateId"]
+# /html/body/div[1]/div/div/div/div[2]/form/table/tbody/tr[4]/td[2]/select
 
-#Select option of the course status to Archived
-//*[@id="stateId"]/option[3]
-/html/body/div[1]/div/div/div/div[2]/form/table/tbody/tr[4]/td[2]/select/option[3]
+# #Select option of the course status to Archived
+# //*[@id="stateId"]/option[3]
+# /html/body/div[1]/div/div/div/div[2]/form/table/tbody/tr[4]/td[2]/select/option[3]
 
-# Button of Save
-//*[@id="saveButton"]
-/html/body/div[1]/div/div/div/div[2]/form/div[11]/input
+# # Button of Save
+# //*[@id="saveButton"]
+# /html/body/div[1]/div/div/div/div[2]/form/div[11]/input
 
 # ---- UI Global Log Universal logger function ----
 def log(msg, newline=True):
