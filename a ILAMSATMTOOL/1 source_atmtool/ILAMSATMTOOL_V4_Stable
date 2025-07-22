@@ -77,7 +77,6 @@ else:                      # Linux / macOS
 import time
 
 
-
 """
 # 1) Path to your matching ChromeDriver
 chrome_driver_path = r"C:\\Users\\Neone\\Driver\\chromedriver.exe"  
@@ -344,12 +343,12 @@ sel_grid_opts = {
     'instruction_label':            dict(row=sel_row_int+1, column=0, columnspan=3, padx=10, pady=4, sticky='w'),
     'instruction_box':              dict(row=sel_row_int+2, column=0, columnspan=3, padx=4, pady=4, sticky='ew'),
     'step':                         dict(row=sel_row_int+3, column=0, columnspan=3, padx=4, pady=4, sticky='w'),
-    'Elentra_Event_ID':             dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='e'),
-    'Elentra_Event_entry':          dict(row=sel_row_int+4, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
+    'Elentra_Event_ID':             dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='e'),
+    'Elentra_Event_entry':          dict(row=sel_row_int+6, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
     'LAMS_Lesson_ID':               dict(row=sel_row_int+5, column=0, padx=8, pady=4, sticky='e'),
     'LAMS_Lesson_ID_entry':         dict(row=sel_row_int+5, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
-    'LAMS_Lesson_Title':            dict(row=sel_row_int+6, column=0, padx=8, pady=4, sticky='e'),
-    'LAMS_Lesson_Title_entry':      dict(row=sel_row_int+6, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
+    'LAMS_Lesson_Title':            dict(row=sel_row_int+4, column=0, padx=8, pady=4, sticky='e'),
+    'LAMS_Lesson_Title_entry':      dict(row=sel_row_int+4, column=1, padx=8, columnspan=3, pady=4, sticky='ew'),
     'Upload_Monitor_URL_checkbox':  dict(row=sel_row_int+7, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
     'Upload_Student_URL_checkbox':  dict(row=sel_row_int+8, column=0, columnspan=3, padx=8, pady=4, sticky='w'),
     'sel_btn_frame':                dict(row=sel_row_int+10, column=0, columnspan=3, pady=20, sticky='w')
@@ -736,7 +735,7 @@ time_out = 10 #wait up to x seconds for element to be clickable
 highlight_duration = 0.05 #set in def highlight ()
 
 # function for left to right typing animation
-def dramatic_input(element, text, delay=1):
+def dramatic_input(element, text, delay=0.5):
     """Type each character with a small pause to mimic a human."""
     for ch in text:
         element.send_keys(ch)
