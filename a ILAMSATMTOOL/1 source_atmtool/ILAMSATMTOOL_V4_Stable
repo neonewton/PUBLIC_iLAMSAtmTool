@@ -872,15 +872,15 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
                 log("✅ Scrolled to bottom")
                 time.sleep(time_sleep)
 
-            # 8) No Time Frame
-            wait_and_click(
-                driver,
-                "/html/body/div[1]/div/div[3]/div/div[7]/div[1]/div[3]/ul/li[4]/a",
-                timeout=time_out,
-                highlight_fn=highlight,
-                message="✅ No Time Frame link clicked",
-                sleep_after=time_sleep
-            )
+            # # 8) No Time Frame
+            # wait_and_click(
+            #     driver,
+            #     "/html/body/div[1]/div/div[3]/div/div[7]/div[1]/div[3]/ul/li[4]/a",
+            #     timeout=time_out,
+            #     highlight_fn=highlight,
+            #     message="✅ No Time Frame link clicked",
+            #     sleep_after=time_sleep
+            # )
             
             # 9) Add a Resource
             wait_and_click(
