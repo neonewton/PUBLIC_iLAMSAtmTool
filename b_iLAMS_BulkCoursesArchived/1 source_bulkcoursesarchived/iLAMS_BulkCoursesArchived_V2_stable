@@ -1,0 +1,202 @@
+#!/usr/local/bin/python3
+
+"""
+## SETUP / Checklist
+
+# Create virtual environment (replace `venv` with your preferred folder)
+python3 -m venv venv
+
+# Activate (macOS/Linux)
+source venv/bin/activate
+
+# Check Python Version
+python3 -V
+
+# Install Required Packages
+pip install -r requirements.txt
+
+⚠️ Avoid using:
+#!/usr/bin/env python3
+
+"""
+# Ensure you have started Chrome with:
+r"""
+MAC:
+open -a "Google Chrome" --args \
+  --remote-debugging-port=9222 \
+  --user-data-dir="$HOME/chrome-debug-profile"
+then
+curl http://127.0.0.1:9222/json
+WINDOWS:
+& 'C:\Program Files\Google\Chrome\Application\chrome.exe' `
+  --remote-debugging-port=9222 `
+  --user-data-dir="C:\Users\Neone\chrome-debug-profile"
+then
+curl http://127.0.0.1:9222/json
+
+"""
+
+import sys, os, time, csv
+from datetime import datetime
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException 
+
+import random
+import time
+
+if os.name == "nt":        # Windows
+    os.system("cls")
+else:                      # Linux / macOS
+    os.system("clear")
+
+"""
+# 1) Path to your matching ChromeDriver
+chrome_driver_path = r"C:\\Users\\Neone\\Driver\\chromedriver.exe"  
+service = Service(chrome_driver_path)
+
+# 2) Tell Selenium to hook into the existing Chrome debug port
+options = Options()
+options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+
+# 3) Create the driver (this will *not* open a new browser window)
+driver = webdriver.Chrome(service=service, options=options)
+
+# 4) Confirm it s attached by printing the current title and URL
+print("Attached to browser:", driver.title, driver.current_url)
+
+"""
+
+# === Setup ===
+chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
+# lams_course_mgmt_url = "https://ilams-bk.lamsinternational.com/lams/admin/orgmanage.do?org=1"
+lams_course_mgmt_url = "https://ilams.lamsinternational.com/lams/admin/orgmanage.do?org=1"
+csv_path = "lams_archived_courses.csv"
+
+# Random sleep duration
+timesleep = 1
+
+# Setup WebDriver to attach to Chrome debug session
+service = Service(executable_path=chrome_driver_path)
+options = Options()
+options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+driver = webdriver.Chrome(service=service, options=options)
+wait = WebDriverWait(driver, 10)
+
+
+# CSV Setup
+if not os.path.exists(csv_path):
+    with open(csv_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Course ID", "Course Name"])
+
+# === Loop: Archive courses row by row ===
+excluded_ids = set(["104", "578", ] + [str(i) for i in range(509, 638)])  # IDs as strings
+
+while True:
+    try:
+        # Go to the course list page
+        driver.get(lams_course_mgmt_url)
+        print("✅ Attached to Chrome")
+
+        # Re-sort every loop
+        sort_xpath = '//*[@id="idsorter"]/div/div'
+        time.sleep(timesleep)
+        wait.until(EC.element_to_be_clickable((By.XPATH, sort_xpath))).click()
+        time.sleep(timesleep)
+        wait.until(EC.element_to_be_clickable((By.XPATH, sort_xpath))).click()
+
+        found_valid_row = False
+        course_id = ""
+        course_name = ""
+        name_xpath = ""
+
+        # Try up to 5 rows to find a valid course
+        for row_index in range(1, 6):
+            id_xpath = f'//*[@id="content"]/div/div[2]/div/table/tbody/tr[{row_index}]/td[1]'
+            name_xpath_try = f'//*[@id="content"]/div/div[2]/div/table/tbody/tr[{row_index}]/td[2]/a'
+
+            try:
+                # Get Course ID
+                id_elem = wait.until(EC.presence_of_element_located((By.XPATH, id_xpath)))
+                candidate_id = id_elem.text.strip()
+
+                candidate_name = ""
+
+                # Retry loop for Course Name
+                MAX_RETRIES = 2
+                for retry in range(MAX_RETRIES):
+                    try:
+                        name_elem = wait.until(EC.presence_of_element_located((By.XPATH, name_xpath_try)))
+                        candidate_name = name_elem.text.strip()
+                        break  # exit retry loop if successful
+                    except StaleElementReferenceException:
+                        if retry < MAX_RETRIES - 1:
+                            print(f"⚠️ Stale reference for course name at row {row_index}, retrying ({retry + 1})...")
+                            time.sleep(0.5)
+                        else:
+                            raise  # re-raise if out of retries
+
+                # Check if ID is excluded
+                if candidate_id in excluded_ids:
+                    print(f"⏭️ Skipped (excluded): {candidate_id} - {candidate_name}")
+                    continue
+
+                # Valid course found
+                course_id = candidate_id
+                course_name = candidate_name
+                name_xpath = name_xpath_try
+                found_valid_row = True
+                break
+
+            except TimeoutException:
+                print(f"⏱️ Row {row_index} not found in time. Skipping...")
+                continue
+            except Exception as e:
+                print(f"❌ Unexpected error at row {row_index}")
+                continue
+
+
+        if not found_valid_row:
+            print("✅ No valid rows found to archive.")
+            break
+
+        # === Proceed to archive ===
+        time.sleep(timesleep)
+        driver.find_element(By.XPATH, name_xpath).click()
+
+        # Edit course
+        edit_xpath = '//*[@id="editCourse"]'
+        time.sleep(1)
+        wait.until(EC.element_to_be_clickable((By.XPATH, edit_xpath))).click()
+
+        # Set status to Archived
+        status_xpath = '//*[@id="stateId"]'
+        wait.until(EC.presence_of_element_located((By.XPATH, status_xpath)))
+        time.sleep(1.5)
+        select = Select(driver.find_element(By.XPATH, status_xpath))
+        select.select_by_visible_text("Archived")
+
+        # Save
+        save_xpath = '//*[@id="saveButton"]'
+        time.sleep(1.2)
+        wait.until(EC.element_to_be_clickable((By.XPATH, save_xpath))).click()
+
+        # Log to CSV
+        with open(csv_path, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([course_id, course_name + " (Archived)"])
+
+        print(f"✅ Archived: {course_id} - {course_name}")
+
+        # Return to course list
+        time.sleep(timesleep)
+        driver.get(lams_course_mgmt_url)
+
+    except (TimeoutException, NoSuchElementException):
+        print("✅ Finished or no more rows to process.")
+        break
