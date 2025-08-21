@@ -67,15 +67,18 @@ from selenium.common.exceptions import (
 )
 
 # === USER CONFIG ===
-CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\04Apr25.csv"
+CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\10Oct25.csv"
 CHROMEDRIVER_PATH = r"C:\Users\Neone\Driver\chromedriver.exe"
 
-
 LAMS_URL = "https://ilams.lamsinternational.com/lams/admin/usersearch.do"
-TIMESLEEP = 1.2
+TIMESLEEP = 1.5
 
-# Output CSV with timestamp
-OUTPUT_PATH = Path.cwd() / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_dlcrosschecked.csv"
+input_path = Path(CSV_INPUT_PATH)
+input_filename = input_path.name  
+input_dir = input_path.parent     # Folder of the input file
+
+# Output to same folder with timestamp
+OUTPUT_PATH = input_dir / f"{input_filename}_{datetime.now().strftime('20%y%m%d_%H%M%S')}.csv"
 
 # XPaths
 SEARCH_INPUT = "/html/body/div[1]/div/main/div[1]/div[2]/input"
@@ -120,9 +123,14 @@ driver.get(LAMS_URL)
 wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT)))
 
 # Load names
-with open(CSV_INPUT_PATH, newline='', encoding="utf-8-sig") as f:
+with open(CSV_INPUT_PATH, newline='', encoding="windows-1252") as f:
     reader = csv.reader(f)
-    names = [row[0].strip() for row in reader if row and row[0].strip()]
+    import re  # <-- Make sure this is at the top of your script
+    names = [
+        re.sub(r"\s*\(.*?\)", "", row[0].strip())  # removes (TTSH), (abc), etc.
+        for row in reader
+        if row and row[0].strip()
+    ]
 
 results = []
 
