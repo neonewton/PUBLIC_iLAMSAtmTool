@@ -730,7 +730,7 @@ def selenium_test():
     finally:
         set_controls(True)
 
-time_sleep = 0.5 #1 sec or 0.05 sec # wait x seconds between actions, for presentation purposes
+time_sleep = 0.5 #1 sec or 0.5 sec # wait x seconds between actions, for presentation purposes
 time_out = 10 #wait up to x seconds for element to be clickable
 highlight_duration = 0.05 #set in def highlight ()
 
@@ -810,9 +810,9 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
     
     # 3) Setup Chrome WebDriver to attach to existing debug session
     #macos-----
-    chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
+    # chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
     #windows-----
-    # chrome_driver_path = "C:\WebDrivers\chromedriver-win64\chromedriver.exe"
+    chrome_driver_path = "C:\WebDrivers\chromedriver-win64\chromedriver.exe"
 
     global driver
     service = Service(executable_path=chrome_driver_path)

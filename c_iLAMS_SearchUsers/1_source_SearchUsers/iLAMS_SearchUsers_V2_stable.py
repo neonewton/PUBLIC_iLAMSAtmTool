@@ -9,6 +9,9 @@ python3 -m venv venv
 # Activate (macOS/Linux)
 source venv/bin/activate
 
+Windows
+venv\Scripts\activate
+
 # Check Python Version
 python3 -V
 
