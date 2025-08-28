@@ -13,3 +13,4 @@ pyexcel_xls
 pillow
 python-docx
 requests
+json5
