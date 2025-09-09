@@ -810,9 +810,9 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
     
     # 3) Setup Chrome WebDriver to attach to existing debug session
     #macos-----
-    # chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
+    chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
     #windows-----
-    chrome_driver_path = "C:\WebDrivers\chromedriver-win64\chromedriver.exe"
+    # chrome_driver_path = "C:\WebDrivers\chromedriver-win64\chromedriver.exe"
 
     global driver
     service = Service(executable_path=chrome_driver_path)
@@ -825,9 +825,12 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
     try:
         # 4) Navigate to Elentra Event Page
         if True: #to group the lines of code
-            driver.get(elentra_event_url)
+            driver.get(elentra_event_url) 
             print("✅ Navigated to Elentra event page")
             log("✅ Navigated to Elentra event page")
+            driver.get(elentra_event_url) #two times to ensure page loads
+            print("✅ Navigated to Elentra event page_2")
+            log("✅ Navigated to Elentra event page_2")
             time.sleep(time_sleep)
 
         # 5) Administrator checkbox
