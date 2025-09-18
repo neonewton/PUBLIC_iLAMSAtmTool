@@ -5,7 +5,7 @@
 ## SETUP / Checklist
 
 # Create virtual environment (replace `venv` with your preferred folder)
-python3 -m venv venv
+    python3 -m venv venv
 
 # Activate (macOS/Linux)
 source venv/bin/activate
