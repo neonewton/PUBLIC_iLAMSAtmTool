@@ -163,6 +163,8 @@ for idx, ((original_name, cleaned_name), original_row) in enumerate(zip(name_pai
             status = "Exist"
         else:
             status = "Acc Not Found"
+        def clean_ilams_email(email):
+            return "" if "@e.ntu.edu.sg" in email.lower() else email
 
         ilams_email_1 = row1[4] if len(row1) > 4 else ""
         ilams_email_2 = row2[4] if len(row2) > 4 else ""
@@ -193,7 +195,7 @@ with open(OUTPUT_PATH_RAW, "w", newline="", encoding="utf-8-sig") as f:
 
 with open(OUTPUT_PATH_ENRICHED, "w", newline="", encoding="utf-8-sig") as f:
     writer = csv.writer(f)
-    writer.writerow(headers + ["DL check account?", "iLAMS email address"])
+    writer.writerow(headers + ["iLAMS account?", "iLAMS email address"])
     writer.writerows(combined_output)
 
 print(f"\n✅ Finished.")
