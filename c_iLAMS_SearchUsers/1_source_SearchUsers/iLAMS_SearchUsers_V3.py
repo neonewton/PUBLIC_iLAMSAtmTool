@@ -51,11 +51,16 @@ NOTES
   * Scrape up to two result rows from the table.
   * Output CSV: YYYYMMDD_HHMMSS_dlcrosschecked.csv
 """
+#!/usr/local/bin/python3
+"""
+Setup notes omitted for brevity. Scroll down for logic.
+"""
 
 import os
 import csv
 import time
 import random
+import re
 from datetime import datetime
 from pathlib import Path
 from selenium import webdriver
@@ -70,49 +75,36 @@ from selenium.common.exceptions import (
 )
 
 # === USER CONFIG ===
-CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\10Oct25.csv"
+CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\11Nov25.csv"
 CHROMEDRIVER_PATH = r"C:\Users\Neone\Driver\chromedriver.exe"
-
 LAMS_URL = "https://ilams.lamsinternational.com/lams/admin/usersearch.do"
 TIMESLEEP = 1.5
 
+# === PATH SETUP ===
 input_path = Path(CSV_INPUT_PATH)
-input_filename = input_path.name  
-input_dir = input_path.parent     # Folder of the input file
+input_dir = input_path.parent
+input_filename = input_path.stem  # e.g. "10Oct25v2_test"
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-# Output to same folder with timestamp
-OUTPUT_PATH = input_dir / f"{input_filename}_{datetime.now().strftime('20%y%m%d_%H%M%S')}.csv"
+OUTPUT_PATH_RAW = input_dir / f"{input_filename}_ilams_{timestamp}.csv"
+OUTPUT_PATH_ENRICHED = input_dir / f"{input_filename}_dlcrosschecked_{timestamp}.csv"
 
-# XPaths
+# === ELEMENT XPATHS ===
 SEARCH_INPUT = "/html/body/div[1]/div/main/div[1]/div[2]/input"
-TABLE_ROW1 = [
-    "/html/body/div[1]/div/main/table/tbody/tr[1]/td[1]",
-    "/html/body/div[1]/div/main/table/tbody/tr[1]/td[2]",
-    "/html/body/div[1]/div/main/table/tbody/tr[1]/td[3]",
-    "/html/body/div[1]/div/main/table/tbody/tr[1]/td[4]",
-    "/html/body/div[1]/div/main/table/tbody/tr[1]/td[5]",
-]
-TABLE_ROW2 = [
-    "/html/body/div[1]/div/main/table/tbody/tr[2]/td[1]",
-    "/html/body/div[1]/div/main/table/tbody/tr[2]/td[2]",
-    "/html/body/div[1]/div/main/table/tbody/tr[2]/td[3]",
-    "/html/body/div[1]/div/main/table/tbody/tr[2]/td[4]",
-    "/html/body/div[1]/div/main/table/tbody/tr[2]/td[5]",
-]
+TABLE_ROW1 = [f"/html/body/div[1]/div/main/table/tbody/tr[1]/td[{i}]" for i in range(1, 6)]
+TABLE_ROW2 = [f"/html/body/div[1]/div/main/table/tbody/tr[2]/td[{i}]" for i in range(1, 6)]
 
+# === HELPERS ===
 def safe_text(driver, xpath):
     try:
         return driver.find_element(By.XPATH, xpath).text.strip()
     except (NoSuchElementException, StaleElementReferenceException):
         return ""
 
-# === Initialise ===
-if os.name == "nt":
-    os.system("cls")
-else:
-    os.system("clear")
+# === INIT BROWSER ===
+if os.name == "nt": os.system("cls")
+else: os.system("clear")
 
-# Attach to existing Chrome session
 options = Options()
 options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 service = Service(CHROMEDRIVER_PATH)
@@ -120,58 +112,92 @@ driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 10)
 
 print("✅ Attached to Chrome")
-
-# Go to the page
 driver.get(LAMS_URL)
 wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT)))
 
-# Load names
+# === LOAD INPUT ===
+input_rows = []
+name_pairs = []
+
 with open(CSV_INPUT_PATH, newline='', encoding="windows-1252") as f:
     reader = csv.reader(f)
-    import re  # <-- Make sure this is at the top of your script
-    names = [
-        re.sub(r"\s*\(.*?\)", "", row[0].strip())  # removes (TTSH), (abc), etc.
-        for row in reader
-        if row and row[0].strip()
-    ]
+    headers = next(reader)  # header row
+    for row in reader:
+        if row and row[0].strip():
+            original_name = row[0].strip()
+            cleaned_name = re.sub(r"\s*\(.*?\)", "", original_name)
+            input_rows.append(row)
+            name_pairs.append((original_name, cleaned_name))
 
+# === MAIN LOOP ===
 results = []
+combined_output = []
 
-# Search each name
-for idx, name in enumerate(names, start=1):
-    print(f"[{idx}/{len(names)}] Searching: {name}")
-
+for idx, ((original_name, cleaned_name), original_row) in enumerate(zip(name_pairs, input_rows), start=1):
+    print(f"[{idx}/{len(name_pairs)}] Searching: {cleaned_name}")
+    
     try:
         search_box = wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT)))
         search_box.clear()
         time.sleep(0.2)
-        search_box.send_keys(name)
+        search_box.send_keys(cleaned_name)
         search_box.send_keys(Keys.RETURN)
         time.sleep(TIMESLEEP)
 
         row1 = [safe_text(driver, xp) for xp in TABLE_ROW1]
         row2 = [safe_text(driver, xp) for xp in TABLE_ROW2]
 
+        # Output 1: Raw scrape
         if any(row1):
-            results.append([name] + row1)
+            results.append([original_name] + row1)
         else:
-            results.append([name, "NOT FOUND", "", "", "", ""])
+            results.append([original_name, "NOT FOUND", "", "", "", ""])
 
         if any(row2):
-            results.append([f"{name} (Row2)"] + row2)
+            results.append([f"{original_name} (Row2)"] + row2)
+
+        # Output 2: Enriched
+        if any(row1) and any(row2):
+            status = "Acc >1"
+        elif any(row1):
+            status = "Exist"
+        else:
+            status = "Acc Not Found"
+
+        ilams_email_1 = row1[4] if len(row1) > 4 else ""
+        ilams_email_2 = row2[4] if len(row2) > 4 else ""
+
+        enriched_row = original_row + [status, ilams_email_1]
+        combined_output.append(enriched_row)
+
+        if status == "Acc >1":
+            alt_row = original_row.copy()
+            alt_row[0] = f"{original_name} (Row2)"
+            alt_row += [status, ilams_email_2]
+            combined_output.append(alt_row)
 
     except Exception as e:
-        print(f"❌ Error processing {name}: {e}")
-        results.append([name, "ERROR", "", "", "", ""])
+        print(f"❌ Error processing {cleaned_name}: {e}")
+        results.append([original_name, "ERROR", "", "", "", ""])
+        error_row = original_row + ["ERROR", ""]
+        combined_output.append(error_row)
         continue
 
     time.sleep(random.uniform(0.8, 1.6))
 
-# Write results
-with open(OUTPUT_PATH, "w", newline="", encoding="utf-8-sig") as f:
+# === SAVE OUTPUT ===
+with open(OUTPUT_PATH_RAW, "w", newline="", encoding="utf-8-sig") as f:
     writer = csv.writer(f)
     writer.writerow(["Name", "User ID", "Login", "First Name", "Last Name", "Email"])
     writer.writerows(results)
 
-print(f"\n✅ Finished. CSV saved to:\n{OUTPUT_PATH}")
+with open(OUTPUT_PATH_ENRICHED, "w", newline="", encoding="utf-8-sig") as f:
+    writer = csv.writer(f)
+    writer.writerow(headers + ["DL check account?", "iLAMS email address"])
+    writer.writerows(combined_output)
+
+print(f"\n✅ Finished.")
+print(f"📁 Raw scrape saved to: {OUTPUT_PATH_RAW.name}")
+print(f"📁 Enriched merge saved to: {OUTPUT_PATH_ENRICHED.name}")
+
 driver.quit()
