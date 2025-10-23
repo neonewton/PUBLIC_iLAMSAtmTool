@@ -14,3 +14,8 @@ pillow
 python-docx
 requests
 json5
+
+
+#Custom Tkinter
+customtkinter
+CTkTable
