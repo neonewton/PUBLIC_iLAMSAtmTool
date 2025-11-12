@@ -52,9 +52,6 @@ NOTES
   * Output CSV: YYYYMMDD_HHMMSS_dlcrosschecked.csv
 """
 #!/usr/local/bin/python3
-"""
-Setup notes omitted for brevity. Scroll down for logic.
-"""
 
 import os
 import csv
@@ -74,9 +71,14 @@ from selenium.common.exceptions import (
     TimeoutException, NoSuchElementException, StaleElementReferenceException
 )
 
+# download new chrome update and driver
+# https://developer.chrome.com/docs/chromedriver/downloads
+
 # === USER CONFIG ===
-CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\11Nov25.csv"
-CHROMEDRIVER_PATH = r"C:\Users\Neone\Driver\chromedriver.exe"
+# CSV_INPUT_PATH = r"C:\Users\Neone\Downloads\VSCodes\PUBLIC_iLAMSAtmTool\c_iLAMS_SearchUsers\4_docs_SearchUsers\11Nov25.csv"
+CSV_INPUT_PATH = r"/Users/neltontan/Documents/VSCodes/PUBLIC_iLAMSAtmTool/c_iLAMS_SearchUsers/4_docs_SearchUsers/11Nov25.csv"
+# CHROMEDRIVER_PATH = r"C:\Users\Neone\Driver\chromedriver.exe"
+CHROMEDRIVER_PATH = r"/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
 LAMS_URL = "https://ilams.lamsinternational.com/lams/admin/usersearch.do"
 TIMESLEEP = 1.5
 
