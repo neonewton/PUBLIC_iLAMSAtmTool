@@ -5,7 +5,7 @@
 ## SETUP / Checklist
 
 # Create virtual environment (replace `venv` with your preferred folder)
-    python3 -m venv venv
+python3 -m venv venv
 
 # Activate (macOS/Linux)
 source venv/bin/activate
@@ -57,8 +57,11 @@ import xlwt # for .xls output
 from pathlib import Path
 import pyexcel
 import pyexcel_xlsx
-from ttkbootstrap import ttk , Style, Window
+import tkinter as tk
+from tkinter import ttk
+from ttkbootstrap import Style, Window
 from ttkbootstrap.constants import *
+
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -810,7 +813,7 @@ def run_upload_elentra_link(Elentra_Event_entry, LAMS_Lesson_ID_entry, LAMS_Less
     
     # 3) Setup Chrome WebDriver to attach to existing debug session
     #macos-----
-    # chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
+    chrome_driver_path = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
     #windows-----
     # chrome_driver_path = "C:\WebDrivers\chromedriver-win64\chromedriver.exe"
 
