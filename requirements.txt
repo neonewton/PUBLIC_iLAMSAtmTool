@@ -1,21 +1,8 @@
-pandas
-xlwt
+streamlit
 
 selenium
 
-ttkbootstrap
-xlrd >= 2.0.1
-
-pyexcel
-pyexcel-xlsx
-pyexcel_xls
-
-pillow
-python-docx
-requests
-json5
-
-
-#Custom Tkinter
-customtkinter
-CTkTable
+pandas
+openpyxl
+xlrd==1.2.0
+xlwt
