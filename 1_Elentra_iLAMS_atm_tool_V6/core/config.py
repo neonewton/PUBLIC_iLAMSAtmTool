@@ -5,7 +5,7 @@ from typing import Optional
 
 @dataclass
 class SeleniumConfig:
-    driver_path: str = "C:/path/to/chromedriver.exe"  # TODO: adjust default
+    driver_path: str = "/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"  # TODO: adjust default
     debugger_address: str = "127.0.0.1:9222"
     lams_base_url: Optional[str] = None   # e.g. "https://lams.example.com/lams"
     elentra_base_url: Optional[str] = None  # e.g. "https://elentra.example.com"
