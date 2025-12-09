@@ -24,6 +24,7 @@ This app groups several automation tools used for Elentra and iLAMS:
 5. iLAMS Bulk Courses Archive  
 
 Use this page to run **pre-checks** before performing any Selenium task.
+...
 """
 )
 
