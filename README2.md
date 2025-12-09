@@ -41,3 +41,4 @@ curl http://127.0.0.1:9222/json
 """
 
 
+streamlit run "1_iLAMS_admin_atm_tool/app.py"
