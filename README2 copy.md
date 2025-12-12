@@ -41,4 +41,4 @@ curl http://127.0.0.1:9222/json
 """
 
 
-# streamlit run "1_Elentra_iLAMS_atm_tool_V6/home.py"
+streamlit run "1_Elentra_iLAMS_atm_tool_V6/home.py"

@@ -6,7 +6,7 @@ from io import BytesIO
 
 from core.bulk_course_archive import run_bulk_course_archive
 
-st.title("Feature 5 – iLAMS Bulk Courses Archive")
+st.title("iLAMS Bulk Courses Archive")
 
 st.markdown(
     """

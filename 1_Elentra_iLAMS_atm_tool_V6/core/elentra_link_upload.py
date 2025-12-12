@@ -31,10 +31,6 @@ from .selenium_utils import (
 )
 
 
-# STUDENT_URL_LOCATOR = (By.NAME, "student_url")  # example only
-# MONITOR_URL_LOCATOR = (By.NAME, "monitor_url")  # example only
-# SAVE_BUTTON_LOCATOR = (By.CSS_SELECTOR, "button[type='submit']")  # example only
-
 def run_elentra_link_upload(
     lams_lesson_title: str,
     elentra_event_id: str,

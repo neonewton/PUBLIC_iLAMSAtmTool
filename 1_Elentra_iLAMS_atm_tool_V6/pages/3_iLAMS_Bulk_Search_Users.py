@@ -6,7 +6,7 @@ from io import BytesIO
 
 from core.search_users import run_user_search
 
-st.title("Feature 4 – iLAMS Search Users")
+st.title("iLAMS Bulk Search Users")
 
 st.markdown(
     """
