@@ -1,4 +1,4 @@
-# app.py
+# home.py
 
 import streamlit as st
 import pandas as pd
@@ -7,7 +7,8 @@ from core.config import get_config, set_config
 from core.selenium_utils import check_selenium_environment
 
 st.set_page_config(
-    page_title="iLAMS Admin Tool",
+    page_title="Elentra iLAMS Automation Tool",
+    page_icon="🦾",
     layout="wide",
 )
 
