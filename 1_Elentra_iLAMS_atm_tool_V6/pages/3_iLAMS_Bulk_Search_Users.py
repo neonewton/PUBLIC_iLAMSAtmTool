@@ -4,15 +4,22 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from core.search_users import run_user_search
+from core.backend_main import run_user_search
 
 st.title("iLAMS Bulk Search Users")
 
 st.markdown(
     """
-Upload a CSV of users and search them in iLAMS via Selenium.
+Context: Clinical Affairs Team (CA Team) will send in the excel sheet. May refer to the template below:
 
-**Prerequisite:** Chrome is running with remote debugging enabled and logged into LAMS/iLAMS.
+Upload a CSV of users and search them in iLAMS admin via Python Selenium.
+"""
+)
+st.markdown(
+    """
+**Prerequisite:** 
+- Ensure you are logged into iLAMS via Chrome with remote debugging enabled.
+- Chrome is running with remote debugging enabled and logged into LAMS/iLAMS.
 """
 )
 
@@ -37,7 +44,7 @@ if uploaded_file:
     if columns:
         search_col = st.selectbox("Column to use for search", columns, index=0)
 
-if st.button("Run Search"):
+if st.button("Run Bulk User Search"):
     if df_input is None or search_col is None:
         st.error("Please upload a CSV and select a search column.")
     else:

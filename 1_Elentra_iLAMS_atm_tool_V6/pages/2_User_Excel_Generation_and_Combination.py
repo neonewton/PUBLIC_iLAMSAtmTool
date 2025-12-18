@@ -4,18 +4,19 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from core.excel_generation_and_combine import generate_user_excel,combine_excels
+from core.backend_main import generate_user_excel,combine_excels
 
-st.title("User Excel Generation")
+st.title("User Excel Generation & Combination")
+
+st.subheader("User Excel Generation")
 
 st.markdown(
     """
-Paste email / user data below and generate an Excel template.
+Paste email address below to generate user Excel sheet(s).
 
-Each line can be:
-- `Name Surname <email@domain>`  
-- `Name Surname - email@domain`  
-- `email@domain`
+Each line must be:
+`staff_username@ntu.edu.sg` or
+`student_username@e.ntu.edu.sg`
 """
 )
 
@@ -27,9 +28,9 @@ if "excel_gen_df" not in st.session_state:
 with st.form("excel_gen_form"):
     mode = st.radio("Mode", ["student", "staff"], index=0)
     course_name = st.text_input("Course Name / Identifier", "")
-    raw_text = st.text_area("Paste email / user text here", height=250)
+    raw_text = st.text_area("Paste email address(es) here", height=250)
 
-    submitted = st.form_submit_button("Generate")
+    submitted = st.form_submit_button("Generate Excel Sheets")
 
 
 if submitted:
@@ -84,13 +85,13 @@ if st.session_state["excel_gen_logs"]:
     df_logs = pd.DataFrame(st.session_state["excel_gen_logs"])
     st.dataframe(df_logs, use_container_width=True)
 
-"""SPLIT"""
+st.markdown("---")
 
-st.title("User Excel Combination")
+st.subheader("User Excel Combination")
 
 st.markdown(
     """
-Upload multiple Excel files and combine them into one consolidated sheet.
+Select folder containing the generated Excel Sheets and combine them into one consolidated sheet for ease uploading.
 """
 )
 
@@ -105,9 +106,9 @@ uploaded_files = st.file_uploader(
     accept_multiple_files=True,
 )
 
-output_filename = st.text_input("Output file name", "combined_output.xlsx")
+output_filename = st.text_input("Output file name:", "YYYYMMDD_HHMMSS_combined.xlsx")
 
-if st.button("Combine"):
+if st.button("Combine Excels Sheet"):
     if not uploaded_files:
         st.error("Please upload at least one Excel file.")
     else:

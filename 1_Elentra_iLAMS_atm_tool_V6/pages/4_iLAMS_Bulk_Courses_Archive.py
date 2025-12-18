@@ -1,10 +1,10 @@
-# pages/5_iLAMS_Bulk_Courses_Archive.py
+# pages/4_iLAMS_Bulk_Courses_Archive.py
 
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from core.bulk_course_archive import run_bulk_course_archive
+from core.backend_main import run_bulk_course_archive
 
 st.title("iLAMS Bulk Courses Archive")
 
@@ -12,7 +12,14 @@ st.markdown(
     """
 **Warning:** This tool will archive multiple courses in iLAMS.
 
-**Prerequisite:** Chrome is running with remote debugging enabled and logged into LAMS/iLAMS.
+"""
+)
+
+st.markdown(
+    """
+**Prerequisite:** 
+- Ensure you are logged into iLAMS via Chrome with remote debugging enabled.
+- Chrome is running with remote debugging enabled and logged into iLAMS.
 """
 )
 
@@ -24,7 +31,7 @@ if "archive_df" not in st.session_state:
 excluded_text = st.text_area(
     "Excluded Course IDs (comma-separated)",
     value="",
-    help="Example: 104, COURSE_123, 578",
+    help="Example: 104 which is our DL repository",
 )
 
 dry_run = st.checkbox("Dry-run (simulate only, no changes saved)", value=True)
@@ -32,11 +39,11 @@ max_courses = st.number_input(
     "Max courses to process",
     min_value=1,
     max_value=2000,
-    value=50,
+    value=10,
     help="Safety cap to avoid accidentally processing too many courses at once.",
 )
 
-if st.button("Run Bulk Archive"):
+if st.button("Run Bulk Courses Archive"):
     excluded_ids = [x.strip() for x in excluded_text.split(",") if x.strip()]
 
     progress_bar = st.progress(0.0)
@@ -60,7 +67,7 @@ if st.button("Run Bulk Archive"):
     st.session_state["archive_logs"] = collected_logs + result["logs"]
     st.session_state["archive_df"] = result["dataframe"]
 
-    st.success("Bulk archive run completed. See affected courses and logs below.")
+    st.success("Bulk Courses Archive run completed. See affected courses and logs below.")
 
 if st.session_state["archive_df"] is not None:
     df = st.session_state["archive_df"]
