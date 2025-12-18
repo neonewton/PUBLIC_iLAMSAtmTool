@@ -2,9 +2,12 @@
 
 
 import re
-from typing import Dict, List, Union, IO
+from typing import Dict, List, Union, IO, Callable
 import time
+import random
 import pandas as pd
+from datetime import datetime
+from pathlib import Path
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -13,7 +16,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
+
 
 import streamlit as st
 
@@ -617,115 +625,146 @@ def combine_excels(
 
 
 
-# core/search_users.py
+# core/bulk_search_users.py
 
-
-# TODO: adjust these locators to match your iLAMS usersearch.do page
 SEARCH_INPUT_LOCATOR = (By.NAME, "searchString")           # example only
 SEARCH_BUTTON_LOCATOR = (By.CSS_SELECTOR, "button[type='submit']")  # example only
 RESULT_ROWS_LOCATOR = (By.CSS_SELECTOR, "table.search-results tbody tr")  # example only
 RESULT_COLS_LOCATOR = (By.CSS_SELECTOR, "td")  # example only
 
 
+TIMESLEEP = 1.5
+
+# === iLAMS XPATHS (PROVEN) ===
+SEARCH_INPUT_XPATH = "/html/body/div[1]/div/main/div[1]/div[2]/input"
+TABLE_ROW1_XPATHS = [f"/html/body/div[1]/div/main/table/tbody/tr[1]/td[{i}]" for i in range(1, 6)]
+TABLE_ROW2_XPATHS = [f"/html/body/div[1]/div/main/table/tbody/tr[2]/td[{i}]" for i in range(1, 6)]
+
+TIMESLEEP = 1.5
+
+
 def run_user_search(
     search_values: List[str],
-    include_second_row: bool,
-    log_callback: LogCallback = default_log_callback,
-    progress_callback: ProgressCallback = default_progress_callback,
+    include_second_row: bool = True,
+    log_callback: Callable = lambda x: None,
+    progress_callback: Callable = lambda c, t: None,
 ) -> Dict:
-    """
-    For each search value:
-    - Loads iLAMS usersearch page
-    - Submits search
-    - Parses up to 2 result rows
-    """
-    logs: List[Dict] = []
+    logs = []
 
     def log(msg: str, level: str = "info"):
-        entry = make_log_entry("SearchUsers", msg, level)
+        entry = make_log_entry("iLAMS User Search", msg, level)
         logs.append(entry)
         log_callback(entry)
 
     config = get_config()
-    if not config.lams_base_url:
-        log("LAMS base URL is not configured. Set it in Home page.", "error")
-        return {"dataframe": pd.DataFrame(), "logs": logs}
-
-    # TODO: adjust to your actual user search URL
-    usersearch_url = f"{config.lams_base_url}/usersearch.do"
+    lams_url = f"{config.lams_base_url}/admin/usersearch.do"
 
     try:
         driver, wait = get_driver(config)
-        log("Attached to Selenium driver.", "info")
+        log("Attached to Chrome via remote debugging.")
     except Exception as e:
-        log(f"Failed to start driver: {e}", "error")
+        log(f"Failed to attach to Chrome: {e}", "error")
         return {"dataframe": pd.DataFrame(), "logs": logs}
 
-    records = []
+    def safe_text(xpath: str) -> str:
+        try:
+            return driver.find_element(By.XPATH, xpath).text.strip()
+        except (NoSuchElementException, StaleElementReferenceException):
+            return ""
+
+    def ensure_page(retries: int = 2):
+        for attempt in range(retries + 1):
+            try:
+                wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT_XPATH)))
+                return
+            except TimeoutException:
+                if attempt < retries:
+                    driver.get(lams_url)
+                    time.sleep(1.5)
+                else:
+                    raise
+
+    results = []
     total = max(len(search_values), 1)
 
-    from selenium.webdriver.support import expected_conditions as EC
+    for idx, raw_input in enumerate(search_values, start=1):
+        progress_callback(idx, total)
 
-    for i, value in enumerate(search_values, start=1):
-        value = str(value).strip()
-        progress_callback(i, total)
-        if not value:
+        original_input = raw_input.strip()
+        if not original_input:
             continue
 
+        # If name contains brackets, strip (Private), (TTSH), etc.
+        search_term = re.sub(r"\s*\(.*?\)", "", original_input)
+
         try:
-            driver.get(usersearch_url)
-            log(f"[{i}/{total}] Opened usersearch for value: {value}", "info")
+            ensure_page()
 
-            # Type and submit search
-            input_el = wait.until(EC.visibility_of_element_located(SEARCH_INPUT_LOCATOR))
-            input_el.clear()
-            input_el.send_keys(value)
+            box = wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT_XPATH)))
+            box.clear()
+            time.sleep(0.2)
+            box.send_keys(search_term)
+            box.send_keys(Keys.RETURN)
+            time.sleep(TIMESLEEP)
 
-            btn = wait.until(EC.element_to_be_clickable(SEARCH_BUTTON_LOCATOR))
-            btn.click()
-            log(f"[{i}/{total}] Submitted search for: {value}", "info")
+            row1 = [safe_text(xp) for xp in TABLE_ROW1_XPATHS]
+            row2 = [safe_text(xp) for xp in TABLE_ROW2_XPATHS]
 
-            # Get result rows
-            rows = wait.until(EC.presence_of_all_elements_located(RESULT_ROWS_LOCATOR))
-            if not rows:
-                log(f"[{i}/{total}] No results for: {value}", "warn")
-                continue
+            if any(row1) and any(row2):
+                status = "Acc >1"
+            elif any(row1):
+                status = "Exist"
+            else:
+                status = "Acc Not Found"
 
-            def extract_row(row_el, row_label: str):
-                cols = row_el.find_elements(*RESULT_COLS_LOCATOR)
-                texts = [c.text.strip() for c in cols]
-                records.append(
-                    {
-                        "Input": value,
-                        "RowLabel": row_label,
-                        "Col1": texts[0] if len(texts) > 0 else "",
-                        "Col2": texts[1] if len(texts) > 1 else "",
-                        "Col3": texts[2] if len(texts) > 2 else "",
-                        "Col4": texts[3] if len(texts) > 3 else "",
-                        "RawColumns": " | ".join(texts),
-                    }
-                )
+            def clean_email(email: str) -> str:
+                return "" if "@e.ntu.edu.sg" in email.lower() else email
 
-            # Always take first row
-            extract_row(rows[0], "Row1")
-            log(f"[{i}/{total}] Captured Row1 for: {value}", "info")
+            email1 = clean_email(row1[4]) if len(row1) > 4 else ""
+            email2 = clean_email(row2[4]) if len(row2) > 4 else ""
 
-            # Optionally take second row
-            if include_second_row and len(rows) > 1:
-                extract_row(rows[1], "Row2")
-                log(f"[{i}/{total}] Captured Row2 for: {value}", "info")
+            results.append({
+                "Input": original_input,
+                "DL check account?": status,
+                "iLAMS email address": email1,
+                "User ID": row1[0],
+                "Login": row1[1],
+                "First Name": row1[2],
+                "Last Name": row1[3],
+                "Row": "Row1",
+            })
+
+            if include_second_row and status == "Acc >1":
+                results.append({
+                    "Input": f"{original_input} (Row2)",
+                    "DL check account?": status,
+                    "iLAMS email address": email2,
+                    "User ID": row2[0],
+                    "Login": row2[1],
+                    "First Name": row2[2],
+                    "Last Name": row2[3],
+                    "Row": "Row2",
+                })
+
+            log(f"[{idx}/{total}] {original_input} → {status}")
 
         except Exception as e:
-            log(f"[{i}/{total}] Error while searching '{value}': {e}", "error")
+            log(f"[{idx}/{total}] Error processing '{original_input}': {e}", "error")
+            results.append({
+                "Input": original_input,
+                "DL check account?": "ERROR",
+                "iLAMS email address": "",
+                "User ID": "",
+                "Login": "",
+                "First Name": "",
+                "Last Name": "",
+                "Row": "ERROR",
+            })
 
-    try:
-        driver.quit()
-        log("Closed Selenium driver.", "info")
-    except Exception as e:
-        log(f"Error closing driver: {e}", "warn")
+        time.sleep(random.uniform(0.8, 1.6))
 
-    df = pd.DataFrame(records)
-    log("User search completed.", "info")
+    df = pd.DataFrame(results)
+    log("User search completed successfully.")
     return {"dataframe": df, "logs": logs}
 
 
