@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 
-from core.elentra_link_upload import run_elentra_link_upload
+from core.backend_main import run_elentra_link_upload
 
 st.title("iLAMS to Elentra Lesson Link Upload")
 

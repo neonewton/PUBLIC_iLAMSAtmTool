@@ -1,38 +1,48 @@
-# home.py
+# Home.py
 
 import streamlit as st
 import pandas as pd
 
 from core.config import get_config, set_config
 from core.selenium_utils import check_selenium_environment
+from core.selenium_utils import launch_chrome_with_debug
 
 st.set_page_config(
-    page_title="Elentra iLAMS Automation Tool",
+    page_title="Elentra & iLAMS Automation Tool",
     page_icon="🦾",
-    layout="wide",
+    layout="centered",
 )
 
-st.title("iLAMS Admin Tool – Home & Pre-checks")
+st.title("Elentra & iLAMS Automation Tool")
+st.caption("Version 6.0.0")
 
 st.markdown(
-
-"""
+    """
 This app groups several automation tools used for Elentra and iLAMS:
+Use the sidebar to access each feature:
 
-1. Elentra Link Upload  
-2. User Excel Generation  
-3. User Excel Combination  
-4. iLAMS Search Users  
-5. iLAMS Bulk Courses Archive  
+- **iLAMS to Elentra URL Link Upload**  
+- **User Excel Generation**  
+- **User Excel Combination**  
+- **iLAMS Search Users**  
+- **iLAMS Bulk Courses Archive**
 
 Use this page to run **pre-checks** before performing any Selenium task.
 
 """
 )
 
+st.markdown("---")
+
 config = get_config()
 
 st.subheader("Environment Configuration")
+
+st.markdown(
+    "Ensure you are logged into Chrome and have downloaded the Chrome WebDriver before executing.<br>"
+    "Download here: <https://googlechromelabs.github.io/chrome-for-testing/>",
+    unsafe_allow_html=True
+)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -66,18 +76,14 @@ if st.button("Save Config"):
     )
     st.success("Configuration saved for this session.")
 
-st.markdown("---")
-st.markdown(
-    "Ensure you are logged into Chrome and have downloaded the Chrome WebDriver before executing.<br>"
-    "Download here: <https://googlechromelabs.github.io/chrome-for-testing/>",
-    unsafe_allow_html=True
-)
+
+
 
 st.markdown("---")
 
-from core.selenium_utils import launch_chrome_with_debug
+st.subheader("Run Pre-checks")
 
-if st.button("Run Selenium Pre-checks"):
+if st.button("Run Pre-configuration checks"):
     st.write("Starting Selenium Pre-checks...")
 
     # 1️⃣ Try launching Chrome first (retry up to 3 times)
@@ -125,17 +131,3 @@ if logs:
     st.dataframe(df_logs, use_container_width=True)
 
 st.markdown("---")
-
-st.subheader("Features")
-
-st.markdown(
-    """
-Use the sidebar to access each feature:
-
-- **1_Elentra_Link_Upload**  
-- **2_User_Excel_Generation**  
-- **3_User_Excel_Combination**  
-- **4_iLAMS_Search_Users**  
-- **5_iLAMS_Bulk_Courses_Archive**
-"""
-)
