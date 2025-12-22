@@ -3,8 +3,9 @@ import pandas as pd
 from io import BytesIO
 import re
 
-from core.backend_main import run_user_search
+from core.backend_2_Bulk_Search_Users import run_user_search
 
+st.set_page_config(page_title="BulkSearch",page_icon="🦾")
 st.title("iLAMS Bulk Search Users")
 
 st.markdown(
@@ -12,15 +13,13 @@ st.markdown(
 **Context:**  
 Clinical Affairs Team (CA Team) pastes CE names or NTU email addresses
 to automate user search in iLAMS Admin.
-"""
-)
 
-st.markdown(
-    """
-**Prerequisite:**  
-- Chrome is already open  
-- Logged into iLAMS  
-- Remote debugging enabled (`--remote-debugging-port=9222`)
+Upload a list of users to automate the search in iLAMS admin.
+
+**Prerequisite:** 
+- Python packages are installed
+- Chrome & Chrome Webdriver are downloaded  
+- Logged into iLAMS Admin via SSO
 """
 )
 
@@ -39,7 +38,7 @@ with st.form("ce_user_search_form"):
     raw_text = st.text_area(
         "Paste CE name(s) or NTU email address(es) (one per line)",
         height=250,
-        placeholder="e.g.\nTan Ah Kow\nlimweijie@ntu.edu.sg"
+        placeholder="e.g.\nDaniel Lim (TTSH)\ntimothy.koh@ntu.edu.sg"
     )
 
     include_second_row = st.checkbox(

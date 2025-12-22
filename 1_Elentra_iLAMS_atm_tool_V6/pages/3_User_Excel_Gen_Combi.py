@@ -4,9 +4,10 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from core.backend_main import generate_user_excel,combine_excels
+from core.backend_3_User_Excel_Gen_Combi import generate_user_excel,combine_excels
 
-st.title("User Excel Generation & Combination")
+st.set_page_config(page_title="ExcelGen&Combi",page_icon="🦾")
+st.title("iLAMS User Excel Generation & Combination")
 
 st.subheader("User Excel Generation")
 

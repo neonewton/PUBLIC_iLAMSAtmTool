@@ -8,12 +8,12 @@ from core.selenium_utils import check_selenium_environment
 from core.selenium_utils import launch_chrome_with_debug
 
 st.set_page_config(
-    page_title="Elentra & iLAMS Automation Tool",
+    page_title="AtmToolConfig",
     page_icon="🦾",
     layout="centered",
 )
 
-st.title("Elentra & iLAMS Automation Tool")
+st.title("Elentra & iLAMS Automation Tool Configuration")
 st.caption("Version 6.0.0")
 
 st.markdown(
