@@ -3,6 +3,7 @@ import pandas as pd
 from io import BytesIO
 import re
 
+
 from core.backend_2_Bulk_Search_Users import run_user_search
 
 st.set_page_config(page_title="BulkSearch",page_icon="🦾")
@@ -34,71 +35,78 @@ if "search_df" not in st.session_state:
 # -------------------------
 # Input form
 # -------------------------
-with st.form("ce_user_search_form"):
-    raw_text = st.text_area(
-        "Paste CE name(s) or NTU email address(es) (one per line)",
-        height=250,
-        placeholder="e.g.\nDaniel Lim (TTSH)\ntimothy.koh@ntu.edu.sg"
-    )
+st.subheader("Input")
 
-    include_second_row = st.checkbox(
-        "Include second result row (Row2) if found",
-        value=True
-    )
+raw_text = st.text_area(
+    "Paste CE name(s) or email address(es) (one per line)",
+    height=250,
+    value="e.g.\nlkc-dl-lams (TTSH)\ntimothy.koh@ntu.edu.sg"
+)
 
-    submitted = st.form_submit_button("Run Bulk User Search")
 
 # -------------------------
 # On submit
 # -------------------------
-if submitted:
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+col1, col2, col3 = st.columns(3)
 
-    if not lines:
-        st.error("Please paste at least one name or email address.")
+with col1:
+    run_clicked = st.button("▶ Run / Resume")
+
+with col2:
+    stop_clicked = st.button("⛔ Stop")
+
+if "usersearch_running" not in st.session_state:
+    st.session_state.usersearch_running = False
+
+if "usersearch_stop" not in st.session_state:
+    st.session_state.usersearch_stop = False
+
+if run_clicked:
+    st.session_state.usersearch_running = True
+    st.session_state.usersearch_stop = False
+
+if stop_clicked:
+    st.session_state.usersearch_stop = True
+    st.session_state.usersearch_running = False
+
+if st.session_state.usersearch_running:
+    st.success("▶ RUNNING")
+
+    progress_bar = st.progress(0.0)
+    collected_logs = []
+
+    def log_callback(entry):
+        collected_logs.append(entry)
+
+    def progress_callback(current, total):
+        if total > 0:
+            progress_bar.progress(min(current / total, 1.0))
+
+    # Split pasted text into lines
+    search_values = [
+        line.strip()
+        for line in raw_text.splitlines()
+        if line.strip()
+    ]
+
+    result = run_user_search(
+        search_values=search_values,   # ✅ now a LIST
+        log_callback=log_callback,
+        progress_callback=progress_callback,
+        stop_flag=lambda: st.session_state.usersearch_stop,
+    )
+
+
+    st.session_state.search_logs.extend(collected_logs + result["logs"])
+    st.session_state.search_df = result["dataframe"]
+
+    if st.session_state.usersearch_stop:
+        st.warning("⛔ User search stopped by user.")
     else:
-        validated_inputs = []
-        invalid_inputs = []
+        st.success("✅ User search completed.")
 
-        for item in lines:
-            if "@" in item:
-                if re.fullmatch(r"[A-Za-z0-9._%+-]+@ntu\.edu\.sg", item, re.IGNORECASE):
-                    validated_inputs.append(item)
-                else:
-                    invalid_inputs.append(item)
-            else:
-                validated_inputs.append(item)
+    st.session_state.usersearch_running = False
 
-        if invalid_inputs:
-            st.warning(
-                "The following entries are invalid and will be skipped:\n\n"
-                + "\n".join(f"- {x}" for x in invalid_inputs)
-            )
-
-        if not validated_inputs:
-            st.error("No valid names or NTU email addresses found.")
-        else:
-            progress_bar = st.progress(0.0)
-            collected_logs = []
-
-            def log_callback(entry):
-                collected_logs.append(entry)
-
-            def progress_callback(current, total):
-                if total > 0:
-                    progress_bar.progress(min(current / total, 1.0))
-
-            result = run_user_search(
-                search_values=validated_inputs,
-                include_second_row=include_second_row,
-                log_callback=log_callback,
-                progress_callback=progress_callback,
-            )
-
-            st.session_state["search_logs"] = collected_logs + result["logs"]
-            st.session_state["search_df"] = result["dataframe"]
-
-            st.success("User search completed.")
 
 # -------------------------
 # Results
