@@ -3,15 +3,19 @@
 import streamlit as st
 import pandas as pd
 
-from core.backend_main import run_elentra_link_upload
+from core.backend_1_Lesson_Link_Upload import run_elentra_link_upload
 
+st.set_page_config(page_title="LinkUpload",page_icon="🦾")
 st.title("iLAMS to Elentra Lesson Link Upload")
 
 st.markdown(
     """
-Automated iLAMS-to-Elentra Link Upload
+This tool uploads iLAMS lesson links (Monitor & Student) to Elentra events in bulk.
 
-**Prerequisite:** Chrome is running with remote debugging enabled and logged into Elentra.
+**Prerequisite:** 
+- Python packages are installed
+- Chrome & Chrome Webdriver are downloaded  
+- Logged into iLAMS Admin via SSO
 """
 )
 
