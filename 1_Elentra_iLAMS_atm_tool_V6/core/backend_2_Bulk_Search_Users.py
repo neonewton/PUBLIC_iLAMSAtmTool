@@ -53,18 +53,18 @@ TIMESLEEP = 1.5
 
 # === iLAMS XPATHS (PROVEN) ===
 SEARCH_INPUT_XPATH = "/html/body/div[1]/div/main/div[1]/div[2]/input"
-TABLE_ROW1_XPATHS = [f"/html/body/div[1]/div/main/table/tbody/tr[1]/td[{i}]" for i in range(1, 6)]
-TABLE_ROW2_XPATHS = [f"/html/body/div[1]/div/main/table/tbody/tr[2]/td[{i}]" for i in range(1, 6)]
+RESULT_ROWS_XPATH = "/html/body/div[1]/div/main/table/tbody/tr"
+
 
 TIMESLEEP = 1.5
 
-
 def run_user_search(
     search_values: List[str],
-    include_second_row: bool = True,
     log_callback: Callable = lambda x: None,
     progress_callback: Callable = lambda c, t: None,
+    stop_flag: Callable[[], bool] = lambda: False,
 ) -> Dict:
+
     logs = []
 
     def log(msg: str, level: str = "info"):
@@ -96,6 +96,7 @@ def run_user_search(
             except TimeoutException:
                 if attempt < retries:
                     driver.get(lams_url)
+                    time.sleep(1.5)
                     driver.get(lams_url)
                     time.sleep(1.5)
                 else:
@@ -105,6 +106,13 @@ def run_user_search(
     total = max(len(search_values), 1)
 
     for idx, raw_input in enumerate(search_values, start=1):
+
+        # STOP checkpoint
+        if stop_flag():
+            log("Stop requested by user. Exiting safely.", "warn")
+            break
+
+
         progress_callback(idx, total)
 
         original_input = raw_input.strip()
@@ -119,58 +127,53 @@ def run_user_search(
 
             box = wait.until(EC.presence_of_element_located((By.XPATH, SEARCH_INPUT_XPATH)))
             box.clear()
-            time.sleep(0.2)
+            time.sleep(0.1)
             box.send_keys(search_term)
             box.send_keys(Keys.RETURN)
             time.sleep(TIMESLEEP)
 
-            row1 = [safe_text(xp) for xp in TABLE_ROW1_XPATHS]
-            row2 = [safe_text(xp) for xp in TABLE_ROW2_XPATHS]
+            rows = driver.find_elements(By.XPATH, RESULT_ROWS_XPATH)
 
-            if any(row1) and any(row2):
-                status = "Acc >1"
-            elif any(row1):
-                status = "Exist"
-            else:
-                status = "Acc Not Found"
-
-            def clean_email(email: str) -> str:
-                return "" if "@e.ntu.edu.sg" in email.lower() else email
-
-            email1 = clean_email(row1[4]) if len(row1) > 4 else ""
-            email2 = clean_email(row2[4]) if len(row2) > 4 else ""
-
-            results.append({
-                "Input": original_input,
-                "DL check account?": status,
-                "iLAMS email address": email1,
-                "User ID": row1[0],
-                "Login": row1[1],
-                "First Name": row1[2],
-                "Last Name": row1[3],
-                "Row": "Row1",
-            })
-
-            if include_second_row and status == "Acc >1":
+            # 🔹 CASE 1: No results found
+            if not rows:
                 results.append({
-                    "Input": f"{original_input} (Row2)",
+                    "Input": original_input,
+                    "Row #": "",                      # or 0 if you prefer numeric
+                    "DL check account?": "Acc Not Found",
+                    "User ID": "",
+                    "Login": "",
+                    "First Name": "",
+                    "Last Name": "",
+                })
+
+                log(f"[{idx}/{total}] {original_input} → Acc Not Found")
+                continue   # 🔴 IMPORTANT: skip row parsing below
+
+            # 🔹 CASE 2: One or more results
+            status = "Acc >1" if len(rows) > 1 else "Exist"
+
+            for idx_row, row_el in enumerate(rows, start=1):
+                cols = row_el.find_elements(By.TAG_NAME, "td")
+                texts = [c.text.strip() for c in cols]
+
+                results.append({
+                    "Input": original_input,          # always original input
+                    "Row #": idx_row,                 # 1, 2, 3, ...
                     "DL check account?": status,
-                    "iLAMS email address": email2,
-                    "User ID": row2[0],
-                    "Login": row2[1],
-                    "First Name": row2[2],
-                    "Last Name": row2[3],
-                    "Row": "Row2",
+                    "User ID": texts[0] if len(texts) > 0 else "",
+                    "Login": texts[1] if len(texts) > 1 else "",
+                    "First Name": texts[2] if len(texts) > 2 else "",
+                    "Last Name": texts[3] if len(texts) > 3 else "",
                 })
 
             log(f"[{idx}/{total}] {original_input} → {status}")
+
 
         except Exception as e:
             log(f"[{idx}/{total}] Error processing '{original_input}': {e}", "error")
             results.append({
                 "Input": original_input,
                 "DL check account?": "ERROR",
-                "iLAMS email address": "",
                 "User ID": "",
                 "Login": "",
                 "First Name": "",
@@ -178,7 +181,7 @@ def run_user_search(
                 "Row": "ERROR",
             })
 
-        time.sleep(random.uniform(0.8, 1.6))
+        time.sleep(random.uniform(1, 2))
 
     df = pd.DataFrame(results)
     log("User search completed successfully.")
