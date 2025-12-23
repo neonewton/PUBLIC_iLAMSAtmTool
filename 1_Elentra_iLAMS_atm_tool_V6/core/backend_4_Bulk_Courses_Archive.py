@@ -36,8 +36,8 @@ NAME_LINK_XPATH = TABLE_ROW_XPATH + "[{i}]/td[2]/a"
 EDIT_XPATH = '//*[@id="editCourse"]'
 STATUS_XPATH = '//*[@id="stateId"]'
 SAVE_XPATH = '//*[@id="saveButton"]'
-#lams_course_mgmt_url = "https://ilams.lamsinternational.com/lams/admin/orgmanage.do?org=1"
-lams_course_mgmt_url = "https://ilams-bk.lamsinternational.com/lams/admin/orgmanage.do?org=1"
+lams_course_mgmt_url = "https://ilams.lamsinternational.com/lams/admin/orgmanage.do?org=1"
+#lams_course_mgmt_url = "https://ilams-bk.lamsinternational.com/lams/admin/orgmanage.do?org=1"
 
 def _set_rows_per_page(wait, log_fn: Callable[[str, str], None], value_text: str = "100") -> None:
     """
