@@ -133,8 +133,7 @@ with st.form("action_form"):
     if mode == "Staff":
         gen_new_users = st.checkbox(
             "📝 Generate New Users .xls",
-            #value=False
-            value=True,
+            value=False
         )
 
         gen_course_map = st.checkbox(
@@ -145,8 +144,7 @@ with st.form("action_form"):
     if mode == "Student":
         gen_new_users = st.checkbox(
             "✨ Generate Y1 Cohort New Users .xls",
-            value=True
-            #value=False
+            value=False
         )
         gen_course_map = st.checkbox(
             "🗺️ Generate Course Mapping .xls",
