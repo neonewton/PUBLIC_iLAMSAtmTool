@@ -345,7 +345,7 @@ def generate_student_package(
     cohort = _safe_name(cohort_name)
     n_courses = len(course_ids)
     n_students = len(valid_emails)
-    parent = f"Student_{cohort}_{ymd}_{n_courses:03d}courses"
+    parent = f"Student_{cohort}_{ymd}_{n_courses}courses"
 
     if generate_y1_new_users:
         n_students = len(valid_emails)
