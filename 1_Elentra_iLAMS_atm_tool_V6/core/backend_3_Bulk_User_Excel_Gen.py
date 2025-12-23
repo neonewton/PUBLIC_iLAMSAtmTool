@@ -373,7 +373,7 @@ def generate_student_package(
             df_roles = _make_roles_df(rows)
             xls_bytes = dataframe_to_xls(df_roles)
 
-            fname = f"{parent}/3_CourseMapStudents/CourseMap_Combi_{cohort}_CID{cid}_{ymd}_{n_students}students.xls"
+            fname = f"{parent}/3_CourseMapStudents/CourseMap_Combi_{cohort}_CID{cid}_{ymd}_{n_students:03d}students.xls"
             files[fname] = xls_bytes
             audit_rows.append({"file": fname, "rows": len(df_roles)})
 
