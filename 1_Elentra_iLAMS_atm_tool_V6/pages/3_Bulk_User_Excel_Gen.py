@@ -28,7 +28,7 @@ def parse_course_ids(raw: str) -> tuple[list[int], list[str]]:
 # -------------------------------------------------
 # Page config
 # -------------------------------------------------
-st.set_page_config(page_title="BulkUserExcelGen", page_icon="🦾")
+st.set_page_config(page_title="BulkExcelGen", page_icon="🦾")
 st.title("iLAMS Bulk New User and Course Map Excel Generation")
 
 # -------------------------------------------------
@@ -107,7 +107,7 @@ if mode == "Staff":
 
 elif mode == "Student":
     st.markdown("### Student Inputs")
-    cohort_name = st.text_input("Cohort Name",value="DL")
+    cohort_name = st.text_input("Cohort Name",value="Cohort2026Y1")
     raw_names = st.text_area("Full Names (one per line, match email order)", help="Each line must correspond to the email in the same row.", value="Nelton Tan Student \nlkc-dl-lams-student")
     raw_emails = st.text_area("Student Email Addresses (one per line)", value="nelton.tan@e.ntu.edu.sg \nlkc-dl-lams-student@e.ntu.edu.sg")
     raw_course_ids = st.text_area(
