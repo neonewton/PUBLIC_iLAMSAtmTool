@@ -8,7 +8,7 @@ from core.selenium_utils import check_selenium_environment
 from core.selenium_utils import launch_chrome_with_debug
 
 st.set_page_config(
-    page_title="AtmToolConfig",
+    page_title="AutoToolConfig",
     page_icon="🦾",
     layout="centered",
 )

@@ -25,8 +25,8 @@ from selenium.common.exceptions import (
 
 import streamlit as st
 
-from .config import SeleniumConfig, get_config
-from .selenium_utils import (
+from core.config import SeleniumConfig, get_config
+from core.selenium_utils import (
     LogCallback,
     ProgressCallback,
     make_log_entry,
