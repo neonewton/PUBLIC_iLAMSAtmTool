@@ -87,9 +87,10 @@ def _validate_email(email: str, mode: str) -> Tuple[bool, str]:
         return False, "Email is empty"
     if not EMAIL_REGEX.match(email):
         return False, "Invalid email format"
-    if mode == "Staff" and not email.endswith("@ntu.edu.sg"):
+    mode = mode.lower()
+    if mode == "staff" and not email.endswith("@ntu.edu.sg"):
         return False, "Staff email must end with @ntu.edu.sg"
-    if mode == "Student" and not email.endswith("@e.ntu.edu.sg"):
+    if mode == "student" and not email.endswith("@e.ntu.edu.sg"):
         return False, "Student email must end with @e.ntu.edu.sg"
     return True, ""
 
@@ -212,7 +213,7 @@ def generate_staff_package(
             username = _username_from_email(email)
             fname = f"{parent}/2_NewUsersList/NewUsers_{dept}_{username}_{ymd}.xls"
             files[fname] = xls_bytes
-            audit_rows.append({"file": fname, "rows": len(df_one)})
+            audit_rows.append({"file": fname, "rows": len(df_combined)})
 
             # collect for combined
             combined_rows.append({
@@ -239,16 +240,13 @@ def generate_staff_package(
             })
 
         # ----- Combined New Users -----
-        df_combined = _make_users_df(
-            [r["email"] for r in combined_rows],
-            [r["first_name"] for r in combined_rows],
-        )
+        df_combined = _make_users_df(valid_emails, full_names)
+
 
         xls_bytes = dataframe_to_xls(df_combined)
         fname = f"{parent}/1_Combined/NewUsers_Combi_{dept}_{ymd}_{n_users:03d}users.xls"
         files[fname] = xls_bytes
-        audit_rows.append({"file": fname, "rows": len(df_one)})
-
+        audit_rows.append({"file": fname, "rows": len(df_combined)})
 
 
     # Course map 
@@ -291,6 +289,8 @@ def generate_staff_package(
     zip_name = f"{parent}.zip"
     zip_bytes = _zip_files(files)
 
+
+
     return GeneratedPackage(
         zip_bytes=zip_bytes,
         zip_filename=zip_name,
@@ -330,6 +330,7 @@ def generate_student_package(
             "Invalid Course IDs (must be integers only): "
             + ", ".join(invalid_ids)
         )
+
 
     valid_emails = []
     for e in emails:
@@ -381,9 +382,19 @@ def generate_student_package(
     zip_name = f"{parent}.zip"
     zip_bytes = _zip_files(files)
 
+    if not valid_emails:
+        return GeneratedPackage(
+            zip_bytes=_zip_files({}),
+            zip_filename=f"Student_{cohort_name}_{ymd}.zip",
+            audit_df=pd.DataFrame(),
+            logs=logs,
+        )
+
     return GeneratedPackage(
         zip_bytes=zip_bytes,
         zip_filename=zip_name,
         audit_df=pd.DataFrame(audit_rows),
         logs=logs,
     )
+
+
