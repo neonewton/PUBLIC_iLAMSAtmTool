@@ -11,19 +11,19 @@ st.title("iLAMS Bulk Courses Archive")
 
 st.markdown(
     """
-**Context:**  
-For Annual Preparation, we will need to archive the courses so that the 
-Data Analytics's Power BI can read the data from the daily iLAMS-bk's data dump 
-via Denodo and Snowflake
+    **Context:**  
+    For Annual Preparation, we will need to archive the courses so that the 
+    Data Analytics's Power BI can read the data from the daily iLAMS-bk's data dump 
+    via Denodo and Snowflake
 
-**Warning:** This tool will archive multiple courses in iLAMS.
+    **Warning:** This tool will archive multiple courses in iLAMS.
 
-**Prerequisite:** 
-- Python packages are installed
-- Chrome & Chrome Webdriver are downloaded  
-- Logged into iLAMS Admin via SSO
+    **Prerequisite:** 
+    - Python packages are installed
+    - Chrome & Chrome Webdriver are downloaded  
+    - Logged into iLAMS Admin via SSO
 
-"""
+    """
 )
 
 if "archive_logs" not in st.session_state:
@@ -48,13 +48,13 @@ max_courses = st.number_input(
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    run_clicked = st.button("▶ Run / Resume")
+    run_clicked = st.button("▶ Run / Resume",type="primary",width="stretch")
 
 with col2:
-    pause_clicked = st.button("⏸ Pause")
+    pause_clicked = st.button("⏸ Pause",type="secondary",width="stretch")
 
 with col3:
-    stop_clicked = st.button("⛔ Stop")
+    stop_clicked = st.button("⛔ Stop",type="secondary",width="stretch")
 
 if "archive_running" not in st.session_state:
     st.session_state.archive_running = False
