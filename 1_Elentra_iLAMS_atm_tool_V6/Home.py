@@ -14,22 +14,14 @@ st.set_page_config(
 )
 
 st.title("Elentra & iLAMS Automation Tool Configuration")
-st.caption("Version 6.0.0")
 
 st.markdown(
     """
 This app groups several automation tools used for Elentra and iLAMS:
-Use the sidebar to access each feature:
 
-- **iLAMS to Elentra URL Link Upload**  
-- **User Excel Generation**  
-- **User Excel Combination**  
-- **iLAMS Search Users**  
-- **iLAMS Bulk Courses Archive**
-
+Use the sidebar to access each feature
 Use this page to run **pre-checks** before performing any Selenium task.
-
-"""
+    """
 )
 
 st.markdown("---")
@@ -67,7 +59,8 @@ with col2:
         help="Example: https://ntu.elentra.cloud/",
     )
 
-if st.button("Save Config"):
+
+if st.button("Save Config", type="secondary", width="stretch"):
     set_config(
         driver_path=driver_path,
         debugger_address=debugger_address,
@@ -78,12 +71,11 @@ if st.button("Save Config"):
 
 
 
-
 st.markdown("---")
 
 st.subheader("Run Pre-checks")
 
-if st.button("Run Pre-configuration checks"):
+if st.button("Run Pre-configuration checks", type="primary", width="stretch"):
     st.write("Starting Selenium Pre-checks...")
 
     # 1️⃣ Try launching Chrome first (retry up to 3 times)
@@ -131,3 +123,5 @@ if logs:
     st.dataframe(df_logs, use_container_width=True)
 
 st.markdown("---")
+
+st.caption("Ver20251230")

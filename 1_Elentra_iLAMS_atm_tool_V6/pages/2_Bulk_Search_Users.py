@@ -43,17 +43,16 @@ raw_text = st.text_area(
     value="e.g.\nlkc-dl-lams (TTSH)\ntimothy.koh@ntu.edu.sg"
 )
 
-
 # -------------------------
 # On submit
 # -------------------------
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
 with col1:
-    run_clicked = st.button("▶ Run / Resume")
+    run_clicked = st.button("▶ Run / Resume",type="primary",width="stretch")
 
 with col2:
-    stop_clicked = st.button("⛔ Stop")
+    stop_clicked = st.button("⛔ Stop",type="secondary",width="stretch")
 
 if "usersearch_running" not in st.session_state:
     st.session_state.usersearch_running = False

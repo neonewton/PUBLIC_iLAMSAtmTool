@@ -127,7 +127,7 @@ def get_driver(
 
 time_sleep = 0.5 #1 sec or 0.5 sec # wait x seconds between actions, for presentation purposes
 time_out = 10 #wait up to x seconds for element to be clickable
-highlight_duration = 0.05 #set in def highlight ()
+highlight_duration = 0.5 #set in def highlight ()
 
 def wait_and_click(
     driver,
