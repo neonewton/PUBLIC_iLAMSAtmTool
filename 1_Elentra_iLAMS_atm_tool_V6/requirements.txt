@@ -1,0 +1,14 @@
+streamlit
+
+selenium
+
+pandas
+openpyxl
+xlrd>=2.0.1 
+xlwt
+
+pytest
+
+pyinstaller
+
+# pip install -r requirements.txt
