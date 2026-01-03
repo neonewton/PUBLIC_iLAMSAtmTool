@@ -114,7 +114,7 @@ if st.session_state.archive_running:
 if st.session_state["archive_df"] is not None:
     df = st.session_state["archive_df"]
     st.subheader("Affected Courses Preview")
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, width='stretch')
 
     buffer = BytesIO()
     df.to_csv(buffer, index=False)
@@ -129,4 +129,4 @@ if st.session_state["archive_df"] is not None:
 if st.session_state["archive_logs"]:
     st.subheader("Logs")
     df_logs = pd.DataFrame(st.session_state["archive_logs"])
-    st.dataframe(df_logs, use_container_width=True)
+    st.dataframe(df_logs, width='stretch')

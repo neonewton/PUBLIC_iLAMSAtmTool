@@ -140,4 +140,4 @@ with st.form("elentra_upload_form"):
 if st.session_state["elentra_logs"]:
     st.subheader("Logs")
     df_logs = pd.DataFrame(st.session_state["elentra_logs"])
-    st.dataframe(df_logs, use_container_width=True)
+    st.dataframe(df_logs, width='stretch')

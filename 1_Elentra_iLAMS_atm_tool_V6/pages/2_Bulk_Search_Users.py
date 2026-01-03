@@ -5,6 +5,7 @@ import re
 
 
 from core.backend_2_Bulk_Search_Users import run_user_search
+from core.backend_2_Bulk_Search_Users import go_user_search_page
 
 st.set_page_config(page_title="BulkSearch",page_icon="🦾")
 st.title("iLAMS Bulk Search Users")
@@ -24,6 +25,32 @@ Upload a list of users to automate the search in iLAMS admin.
 """
 )
 
+st.markdown("### iLAMS Utilities")
+
+open_user_search = st.button(
+    "Open iLAMS User management page in Chrome",
+    type="secondary",
+    width='stretch',
+)
+
+if open_user_search:
+    st.session_state.setdefault("elentra_logs", [])
+
+    def log_callback(entry):
+        st.session_state["elentra_logs"].append(entry)
+
+    result = go_user_search_page(
+        log_callback=log_callback
+    )
+
+    st.success("iLAMS User Search page opened in Chrome.")
+
+if st.session_state.get("elentra_logs"):
+    df_logs = pd.DataFrame(st.session_state["elentra_logs"])
+    df_logs["message"] = df_logs["message"].astype(str)
+    st.dataframe(df_logs, width="stretch")
+
+
 # -------------------------
 # Session state
 # -------------------------
@@ -35,12 +62,12 @@ if "search_df" not in st.session_state:
 # -------------------------
 # Input form
 # -------------------------
-st.subheader("Input")
+st.subheader("Input for User Search")
 
 raw_text = st.text_area(
     "Paste CE name(s) or email address(es) (one per line)",
     height=250,
-    value="e.g.\nlkc-dl-lams (TTSH)\ntimothy.koh@ntu.edu.sg"
+    value="lkc-dl-lams (TTSH)\ntimothy.koh@ntu.edu.sg"
 )
 
 # -------------------------

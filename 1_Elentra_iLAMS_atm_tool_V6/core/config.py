@@ -9,7 +9,7 @@ def default_driver_path() -> str:
         return r"C:\WebDrivers\chromedriver-win64\chromedriver.exe"
     else:                 # macOS or Linux
         return r"/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
-
+        # return r"/Users/{username}/Driver/chromedriver-mac-arm64/chromedriver"
 @dataclass
 class SeleniumConfig:
     driver_path: str = default_driver_path()

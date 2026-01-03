@@ -63,14 +63,14 @@ c1, c2 = st.columns(2)
 c1.button(
     "STAFFS / CEs",
     type="primary" if st.session_state.user_mode == "Staff" else "secondary",
-    use_container_width=True,
+    width='stretch',
     on_click=set_mode_staff,
 )
 
 c2.button(
     "STUDENTS",
     type="primary" if st.session_state.user_mode == "Student" else "secondary",
-    use_container_width=True,
+    width='stretch',
     on_click=set_mode_student,
 )
 

@@ -204,6 +204,8 @@ def generate_staff_package(
             raise ValueError("Number of names must match number of emails.")
 
         combined_rows = []
+        # ----- Combined New Users -----
+        df_combined = _make_users_df(valid_emails, full_names)
 
         for email, name in zip(valid_emails, full_names):
             # ----- Individual -----
@@ -238,10 +240,6 @@ def generate_staff_package(
                 "mobile_phone": "",
                 "time_zone": "",
             })
-
-        # ----- Combined New Users -----
-        df_combined = _make_users_df(valid_emails, full_names)
-
 
         xls_bytes = dataframe_to_xls(df_combined)
         fname = f"{parent}/1_Combined/NewUsers_Combi_{dept}_{ymd}_{n_users:03d}users.xls"
