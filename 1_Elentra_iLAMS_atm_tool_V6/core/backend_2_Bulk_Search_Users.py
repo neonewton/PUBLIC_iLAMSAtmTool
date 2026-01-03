@@ -54,9 +54,40 @@ TIMESLEEP = 1.5
 # === iLAMS XPATHS (PROVEN) ===
 SEARCH_INPUT_XPATH = "/html/body/div[1]/div/main/div[1]/div[2]/input"
 RESULT_ROWS_XPATH = "/html/body/div[1]/div/main/table/tbody/tr"
-
+lams_url = r"https://ilams.lamsinternational.com/lams/admin/usersearch.do"
 
 TIMESLEEP = 1.5
+
+def go_user_search_page(
+    log_callback: Callable = lambda x: None,
+    progress_callback: Callable = lambda c, t: None,
+) -> dict:
+
+    logs = []
+
+    def log(msg: str, level: str = "info"):
+        entry = make_log_entry("iLAMS User Search", msg, level)
+        logs.append(entry)
+        log_callback(entry)
+
+    config = get_config()
+
+    try:
+        driver, wait = get_driver(config)
+        log("Attached to Chrome via remote debugging.")
+    except Exception as e:
+        log(f"Failed to attach to Chrome: {e}", "error")
+        return {"logs": logs}
+
+    try:
+        driver.get("https://ilams.lamsinternational.com/lams/admin/usersearch.do")
+        time.sleep(2)
+        log("Opened iLAMS User Search page.")
+    finally:
+        pass
+
+    return {"logs": logs}
+
 
 def run_user_search(
     search_values: List[str],
@@ -73,7 +104,6 @@ def run_user_search(
         log_callback(entry)
 
     config = get_config()
-    lams_url = r"https://ilams.lamsinternational.com/lams/admin/usersearch.do"
 
     try:
         driver, wait = get_driver(config)
