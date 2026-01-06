@@ -48,9 +48,7 @@ Example:
 ```bash
 cd ~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
 
----
-
-### 🍎 macOS Setup & Run
+## macOS Setup & Run
 
 Copy and paste the following commands from
 1_commands_macos.txt (if provided), or run directly:
@@ -63,9 +61,7 @@ pip install -r requirements.txt
 
 streamlit run Home.py
 
----
-
-### 🪟 Windows Setup & Run
+## Windows Setup & Run
 
 Copy and paste the following commands from
 1_commands_windows.txt (if provided), or run directly:
@@ -78,9 +74,7 @@ pip install -r requirements.txt
 
 streamlit run Home.py
 
----
-
-### 🔁 Subsequent Runs
+## 🔁 Subsequent Runs
 
 After the first setup, you only need to:
 
@@ -92,9 +86,7 @@ Windows
 .\venv\Scripts\Activate.ps1
 streamlit run Home.py
 
----
-
-### 🌐 Useful Links
+## 🌐 Useful Links
 
 GitHub Repository
 https://github.com/neonewton/PUBLIC_AutoTool-LAMS-Elentra
