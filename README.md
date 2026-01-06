@@ -1,6 +1,6 @@
 # iLAMS–Elentra Automation Tool (Local Setup)
 
-This guide helps first-time users run the **iLAMS–Elentra Automation Tool** locally on **macOS or Windows**, assuming Python and Chrome are available.
+This guide helps first-time users run the **iLAMS–Elentra Automation Tool** locally on **MacOS or Windows**, assuming Python and Chrome are available.
 
 ---
 
