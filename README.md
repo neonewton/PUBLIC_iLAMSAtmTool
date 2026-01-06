@@ -24,7 +24,7 @@ Before starting, download and install the following:
 ## 📂 Recommended Folder Location (Strongly Advised)
 
 For consistency and fewer path issues, place the project under:
-~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
+~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
 
 
 > **Tip:**  
@@ -46,7 +46,7 @@ For consistency and fewer path issues, place the project under:
 Example:
 
 ```bash
-cd ~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
+cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 
 ```
 ---
