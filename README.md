@@ -57,6 +57,7 @@ cd ~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
 Copy and paste the following commands from
 1_commands_macos.txt (if provided), or run directly:
 
+```bash
 python3.13 -m venv venv
 source venv/bin/activate
 
@@ -64,14 +65,14 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 streamlit run Home.py
-
+```
 ---
 
 ## Windows Setup & Run
 
 Copy and paste the following commands from
 1_commands_windows.txt (if provided), or run directly:
-
+```bash
 py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 
@@ -79,13 +80,13 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 streamlit run Home.py
-
+```
 ---
 
 ## 🔁 Subsequent Runs
 
 After the first setup, you only need to:
-
+```bash
 macOS
 source venv/bin/activate
 streamlit run Home.py
@@ -93,7 +94,7 @@ streamlit run Home.py
 Windows
 .\venv\Scripts\Activate.ps1
 streamlit run Home.py
-
+```
 ---
 
 ### 🌐 Useful Links
