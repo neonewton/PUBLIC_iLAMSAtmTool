@@ -7,7 +7,7 @@ venv
 *.sqlite
 *.zip
 .devcontainer/
-
+.devcontainer
 
 ~/logs
 venv/
