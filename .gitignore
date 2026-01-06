@@ -8,6 +8,12 @@ venv
 *.devcontainer/
 .devcontainer
 *.spec
+2_MacOS/*.zip
+2_Windows/*.zip
+*.pkg
+*.exe
+
+
 
 ~/logs
 venv/
