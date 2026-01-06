@@ -14,10 +14,11 @@ def apply_ntu_purple_theme():
 
         /* ===== Top Header Bar ===== */
         header[data-testid="stHeader"] {
-            background-color: #5A003E; /* NTU / LKC purple */
+            background-color: #5A003E;
             height: 70px;
         }
 
+        /* Custom NTU title */
         header[data-testid="stHeader"]::before {
             content: "NANYANG TECHNOLOGICAL UNIVERSITY  |  LEE KONG CHIAN SCHOOL OF MEDICINE";
             color: white;
@@ -28,9 +29,9 @@ def apply_ntu_purple_theme():
             display: block;
         }
 
-        /* Hide default Streamlit header content */
-        header[data-testid="stHeader"] > div {
-            display: none;
+        /* Hide Streamlit toolbar but keep sidebar toggle */
+        header[data-testid="stHeader"] [data-testid="stToolbar"] {
+            visibility: hidden;
         }
 
         /* ===== Sidebar ===== */
