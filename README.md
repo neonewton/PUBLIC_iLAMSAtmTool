@@ -86,12 +86,15 @@ streamlit run Home.py
 ## 🔁 Subsequent Runs
 
 After the first setup, you only need to:
+
+# MacOS
 ```bash
-macOS
 source venv/bin/activate
 streamlit run Home.py
+```
 
-Windows
+# indows
+```bash
 .\venv\Scripts\Activate.ps1
 streamlit run Home.py
 ```
