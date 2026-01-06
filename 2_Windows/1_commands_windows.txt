@@ -1,0 +1,10 @@
+# copy and paste to terminal or powershell
+
+#Windows
+cd ~/Documents/Github/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
+
+python3.13 -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+streamlit run Home.py
