@@ -15,7 +15,6 @@ def dummy_log_callback(entry):
 def dummy_progress_callback(current, total):
     pass
 
-
 # -------------------------------------------------
 # VALIDATION TESTS
 # -------------------------------------------------
