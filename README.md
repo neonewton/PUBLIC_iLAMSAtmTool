@@ -71,7 +71,7 @@ streamlit run Home.py
 Copy and paste the following commands from **1_commands_windows.txt**, or run directly:
 ```bash
 py -3.13 -m venv venv
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt
