@@ -7,6 +7,11 @@ import re
 from core.backend_2_Bulk_Search_Users import run_user_search
 from core.backend_2_Bulk_Search_Users import go_user_search_page
 
+from core.theme import apply_ntu_purple_theme
+from core.theme import apply_claude_theme
+apply_ntu_purple_theme()
+#apply_claude_theme()
+
 st.set_page_config(page_title="BulkSearch",page_icon="🦾")
 st.title("iLAMS Bulk Search Users")
 
@@ -19,10 +24,12 @@ to automate user search in iLAMS Admin.
 Upload a list of users to automate the search in iLAMS admin.
 
 **Prerequisite:** 
-- Python packages are installed
-- Chrome & Chrome Webdriver are downloaded  
-- Logged into iLAMS Admin via SSO
+- Python ver 3.13 installed from python.org
+- Same version of Chrome & Chrome Webdriver are downloaded e.g. 143
+https://googlechromelabs.github.io/chrome-for-testing/ 
+- Logged into iLAMS Admin via SSO (Chrome)
 """
+
 )
 
 st.markdown("### iLAMS Utilities")
@@ -141,7 +148,7 @@ if st.session_state["search_df"] is not None:
     df = st.session_state["search_df"]
 
     st.subheader("Search Results Preview")
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, width='stretch')
 
     buffer = BytesIO()
     df.to_csv(buffer, index=False)
@@ -160,5 +167,5 @@ if st.session_state["search_df"] is not None:
 if st.session_state["search_logs"]:
     st.subheader("Logs")
     df_logs = pd.DataFrame(st.session_state["search_logs"])
-    st.dataframe(df_logs, use_container_width=True)
+    st.dataframe(df_logs, width='stretch')
 

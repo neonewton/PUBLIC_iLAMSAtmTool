@@ -5,18 +5,25 @@ import pandas as pd
 
 from core.backend_1_Lesson_Link_Upload import run_elentra_link_upload
 
+from core.theme import apply_ntu_purple_theme
+from core.theme import apply_claude_theme
+apply_ntu_purple_theme()
+#apply_claude_theme()
+
 st.set_page_config(page_title="LinkUpload",page_icon="🦾")
-st.title("iLAMS to Elentra Lesson Link Upload")
+st.title("iLAMS to Elentra Bulk Lesson Link Upload")
 
 st.markdown(
 """
 This tool uploads iLAMS lesson links (Monitor & Student) to Elentra events in bulk.
 
 **Prerequisite:** 
-- Python packages are installed
-- Chrome & Chrome Webdriver are downloaded  
-- Logged into iLAMS Admin via SSO
-""")
+- Python ver 3.13 installed from python.org
+- Same version of Chrome & Chrome Webdriver are downloaded e.g. 143
+https://googlechromelabs.github.io/chrome-for-testing/ 
+- Logged into iLAMS Admin via SSO (Chrome)
+"""
+)
 
 # --- Safe defaults ---
 if "elentra_logs" not in st.session_state:

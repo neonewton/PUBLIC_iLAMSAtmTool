@@ -7,11 +7,19 @@ from core.config import get_config, set_config
 from core.selenium_utils import check_selenium_environment
 from core.selenium_utils import launch_chrome_with_debug
 
+from core.theme import apply_ntu_purple_theme
+from core.theme import apply_claude_theme
+apply_ntu_purple_theme()
+#apply_claude_theme()
+
 st.set_page_config(
     page_title="AutoToolConfig",
     page_icon="🦾",
     layout="centered",
 )
+
+
+
 
 st.title("Elentra & iLAMS Automation Tool Configuration")
 
@@ -120,8 +128,8 @@ else:
 if logs:
     df_logs = pd.DataFrame(logs)
     st.subheader("Pre-check Logs")
-    st.dataframe(df_logs, use_container_width=True)
+    st.dataframe(df_logs, width='Stretch')
 
 st.markdown("---")
 
-st.caption("Ver20251230")
+st.caption("Ver20260106")

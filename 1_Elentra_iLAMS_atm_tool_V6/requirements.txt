@@ -9,6 +9,7 @@ xlwt
 
 pytest
 
-pyinstaller
+# pyinstaller
+
 
 # pip install -r requirements.txt

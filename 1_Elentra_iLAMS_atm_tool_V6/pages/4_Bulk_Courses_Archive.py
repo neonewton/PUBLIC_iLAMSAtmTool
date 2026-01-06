@@ -6,6 +6,11 @@ from io import BytesIO
 
 from core.backend_4_Bulk_Courses_Archive import run_bulk_course_archive
 
+from core.theme import apply_ntu_purple_theme
+from core.theme import apply_claude_theme
+apply_ntu_purple_theme()
+#apply_claude_theme()
+
 st.set_page_config(page_title="BulkArchive",page_icon="🦾")
 st.title("iLAMS Bulk Courses Archive")
 
@@ -19,10 +24,10 @@ st.markdown(
     **Warning:** This tool will archive multiple courses in iLAMS.
 
     **Prerequisite:** 
-    - Python packages are installed
-    - Chrome & Chrome Webdriver are downloaded  
-    - Logged into iLAMS Admin via SSO
-
+    - Python ver 3.13 installed from python.org
+    - Same version of Chrome & Chrome Webdriver are downloaded e.g. 143
+    https://googlechromelabs.github.io/chrome-for-testing/ 
+    - Logged into iLAMS Admin via SSO (Chrome)
     """
 )
 

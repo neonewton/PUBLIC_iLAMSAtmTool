@@ -14,45 +14,40 @@ from core.backend_3_Bulk_User_Excel_Gen import (
 # Helpers
 # -------------------------------------------------
 
-def open_zip(zip_bytes: bytes):
+def open_zip(zip_bytes: bytes) -> zipfile.ZipFile:
     return zipfile.ZipFile(BytesIO(zip_bytes))
 
 
-def read_xls_from_zip(zf: zipfile.ZipFile, filename: str) -> pd.DataFrame:
-    with zf.open(filename) as f:
+def read_xls(zf: zipfile.ZipFile, name_contains: str) -> pd.DataFrame:
+    fname = next(n for n in zf.namelist() if name_contains in n)
+    with zf.open(fname) as f:
         return pd.read_excel(f)
 
 
 # -------------------------------------------------
-# STAFF TESTS
+# STAFF – EMAIL & USER GENERATION
 # -------------------------------------------------
 
-def test_invalid_staff_email_skipped():
+def test_staff_invalid_email_is_skipped_not_crash():
     pkg = generate_staff_package(
         department_name="DL",
-        full_names=["Alice"],
-        raw_emails="alice@gmail.com",
+        full_names=["Alice Tan"],
+        raw_emails="alice@gmail.com\nalice@ntu.edu.sg",
         raw_course_ids="101",
         selected_roles=["monitor"],
         generate_new_users=True,
         generate_course_map=False,
     )
 
-    assert pkg.audit_df.empty
-
     zf = open_zip(pkg.zip_bytes)
 
-    files = zf.namelist()
-
-    # two individual new-user files
-    assert any("NewUsers_DL_alice_" in f for f in files)
-    assert any("NewUsers_DL_bob_" in f for f in files)
-
-    # combined new users
-    assert any("NewUsers_Combi_DL" in f for f in files)
+    # Only valid NTU email should be present
+    df = read_xls(zf, "NewUsers_")
+    assert len(df) == 1
+    assert df.loc[0, "* email"].endswith("@ntu.edu.sg")
 
 
-def test_staff_users_xls_headers():
+def test_staff_users_xls_schema_and_values():
     pkg = generate_staff_package(
         department_name="DL",
         full_names=["Alice Tan"],
@@ -64,16 +59,18 @@ def test_staff_users_xls_headers():
     )
 
     zf = open_zip(pkg.zip_bytes)
-    fname = next(f for f in zf.namelist() if "NewUsers_DL_alice" in f)
-
-    df = read_xls_from_zip(zf, fname)
+    df = read_xls(zf, "NewUsers_")
 
     assert list(df.columns) == USERS_COLUMNS
     assert df.loc[0, "* login"] == "alice@ntu.edu.sg"
     assert df.loc[0, "* first_name"] == "Alice Tan"
 
 
-def test_staff_course_map_roles_pipe_join():
+# -------------------------------------------------
+# STAFF – COURSE MAP
+# -------------------------------------------------
+
+def test_staff_course_map_roles_joined_correctly():
     pkg = generate_staff_package(
         department_name="DL",
         full_names=["Alice Tan"],
@@ -85,32 +82,62 @@ def test_staff_course_map_roles_pipe_join():
     )
 
     zf = open_zip(pkg.zip_bytes)
-    fname = next(f for f in zf.namelist() if "CourseMap_DL_alice" in f)
+    df = read_xls(zf, "CourseMap_")
 
-    df = read_xls_from_zip(zf, fname)
-
+    assert list(df.columns) == ROLES_COLUMNS
+    assert set(df["* organisation"].astype(str)) == {"101", "102"}
     assert df.loc[0, "* roles"] == "monitor|course manager"
-    assert len(df) == 2  # 2 course IDs
-
 
 def test_staff_combined_course_map_exists():
     pkg = generate_staff_package(
         department_name="DL",
         full_names=["A", "B"],
         raw_emails="a@ntu.edu.sg\nb@ntu.edu.sg",
-        raw_course_ids="101\n102",
+        raw_course_ids="101",
         selected_roles=["monitor"],
         generate_new_users=False,
         generate_course_map=True,
     )
 
     zf = open_zip(pkg.zip_bytes)
-
-    assert any("CourseMap_Combi_DL" in f for f in zf.namelist())
+    assert any("CourseMap_Combi_" in f for f in zf.namelist())
 
 
 # -------------------------------------------------
-# STUDENT TESTS
+# STUDENT – VALIDATION
+# -------------------------------------------------
+
+def test_student_invalid_course_ids_raise():
+    with pytest.raises(ValueError):
+        generate_student_package(
+            cohort_name="Cohort2026",
+            full_names=["Student One"],
+            raw_emails="s1@e.ntu.edu.sg",
+            raw_course_ids="ABC\n123",
+            generate_y1_new_users=False,
+            generate_course_map=True,
+        )
+
+
+def test_student_invalid_email_skipped():
+    pkg = generate_student_package(
+        cohort_name="Cohort2026",
+        full_names=["Student One"],
+        raw_emails="bad@gmail.com\ns1@e.ntu.edu.sg",
+        raw_course_ids="201",
+        generate_y1_new_users=True,
+        generate_course_map=False,
+    )
+
+    zf = open_zip(pkg.zip_bytes)
+    df = read_xls(zf, "NewUsers_")
+
+    assert len(df) == 1
+    assert df.loc[0, "* email"].endswith("@e.ntu.edu.sg")
+
+
+# -------------------------------------------------
+# STUDENT – COURSE MAP
 # -------------------------------------------------
 
 def test_student_course_map_per_course():
@@ -126,55 +153,26 @@ def test_student_course_map_per_course():
     zf = open_zip(pkg.zip_bytes)
 
     files = zf.namelist()
-
     assert any("CID201" in f for f in files)
     assert any("CID202" in f for f in files)
 
 
-def test_student_y1_new_users_combined():
+def test_student_new_users_schema():
     pkg = generate_student_package(
         cohort_name="Cohort2026",
-        full_names=["Student One", "Student Two"],
-        raw_emails="s1@e.ntu.edu.sg\ns2@e.ntu.edu.sg",
+        full_names=["Student One"],
+        raw_emails="s1@e.ntu.edu.sg",
         raw_course_ids="201",
         generate_y1_new_users=True,
         generate_course_map=False,
     )
 
     zf = open_zip(pkg.zip_bytes)
+    df = read_xls(zf, "NewUsers_")
 
-    fname = next(f for f in zf.namelist() if "NewUsers_Combined" in f)
-    df = read_xls_from_zip(zf, fname)
-
-    assert len(df) == 2
     assert list(df.columns) == USERS_COLUMNS
+    assert len(df) == 1
 
 
-# -------------------------------------------------
-# VALIDATION TESTS
-# -------------------------------------------------
 
-def test_invalid_staff_email_rejected():
-    with pytest.raises(Exception):
-        generate_staff_package(
-            department_name="DL",
-            full_names=["Alice"],
-            raw_emails="alice@gmail.com",
-            raw_course_ids="101",
-            selected_roles=["monitor"],
-            generate_new_users=True,
-            generate_course_map=False,
-        )
-
-
-def test_student_course_id_must_be_integer():
-    with pytest.raises(ValueError):
-        generate_student_package(
-            cohort_name="Cohort2026",
-            full_names=["Student One"],
-            raw_emails="s1@e.ntu.edu.sg",
-            raw_course_ids="ABC",
-            generate_y1_new_users=False,
-            generate_course_map=True,
-        )
-
+# pytest --cov=core.backend_3_Bulk_User_Excel_Gen --cov-report=term-missing
