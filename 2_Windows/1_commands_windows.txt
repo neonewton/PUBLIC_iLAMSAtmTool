@@ -5,6 +5,7 @@
 cd ~/Documents/Github/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
 python -m venv venv
 .venv\Scripts\activate
+
 pip install --upgrade pip
 pip install -r requirements.txt
 streamlit run Home.py
