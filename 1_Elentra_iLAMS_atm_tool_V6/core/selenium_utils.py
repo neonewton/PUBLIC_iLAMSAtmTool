@@ -132,7 +132,7 @@ highlight_duration = 0.5 #set in def highlight ()
 def wait_and_click(
     driver,
     locator,
-    description: str = None,
+    description=None,
     timeout=10,
     log_callback=default_log_callback,
     highlight_fn=None,
