@@ -1,32 +1,102 @@
-Download the relevant python pkg and chrome webdriver from either the "2_Windows" or "2_MacOS" files
-Open terminal.app or powershell.exe
-Copy and paste the commands from "1_commands_macos.txt" or "1_commands_windows.txt'
+# iLAMS–Elentra Automation Tool (Local Setup)
 
-Strong advise to paste under 
->>Username
->>Documents
->>GitHub
->>PUBLIC_iLAMSAtmTool
->>1_Elentra_iLAMS_atm_tool_V6
+This guide helps first-time users run the **iLAMS–Elentra Automation Tool** locally on **macOS or Windows**, assuming Python and Chrome are available.
+
+---
+
+## 📥 Prerequisites
+
+Before starting, download and install the following:
+
+- **Python 3.13**  
+  https://www.python.org/downloads/
+
+- **Google Chrome & Chrome WebDriver**  
+  https://googlechromelabs.github.io/chrome-for-testing/
+
+- **Project files**
+  - Download the relevant Python packages and Chrome WebDriver from:
+    - `2_Windows/` **or**
+    - `2_MacOS/`
+
+---
+
+## 📂 Recommended Folder Location (Strongly Advised)
+
+For consistency and fewer path issues, place the project under:
+~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
 
 
-Other Essential Links:
-GitHub Respoitory: https://github.com/neonewton/PUBLIC_AutoTool-LAMS-Elentra
-Streamlit Cloud for Bulk Excel Generation: https://autotool-ilams-elentrav2.streamlit.app/
-Python.org, download version 3.13: https://www.python.org/downloads/ 
-Chrome & Chrome Webdriver: https://googlechromelabs.github.io/chrome-for-testing/
+> **Tip:**  
+> Open Terminal (macOS) or PowerShell (Windows) from this directory before running any commands.
 
-# MacOS
+---
+
+## ▶️ How to Run (First Time)
+
+### Step 1: Open a terminal
+
+- **macOS:** `Terminal.app`
+- **Windows:** `PowerShell`
+
+---
+
+### Step 2: Navigate to the project directory
+
+Example:
+
+```bash
+cd ~/Documents/GitHub/PUBLIC_iLAMSAtmTool/1_Elentra_iLAMS_atm_tool_V6
+
+
+🍎 macOS Setup & Run
+
+Copy and paste the following commands from
+1_commands_macos.txt (if provided), or run directly:
+
 python3.13 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
-pip install --upgrade pip
-streamlit run "1_Elentra_iLAMS_atm_tool_V6/home.py"
 
-# Windows
-python3.13 -m venv venv
-.venv\Scripts\activate
-pip install -r requirements.txt
 pip install --upgrade pip
-streamlit run "1_Elentra_iLAMS_atm_tool_V6/home.py"
+pip install -r requirements.txt
 
+streamlit run Home.py
+
+🪟 Windows Setup & Run
+
+Copy and paste the following commands from
+1_commands_windows.txt (if provided), or run directly:
+
+py -3.13 -m venv venv
+.\venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+streamlit run Home.py
+
+🔁 Subsequent Runs
+
+After the first setup, you only need to:
+
+macOS
+source venv/bin/activate
+streamlit run Home.py
+
+Windows
+.\venv\Scripts\Activate.ps1
+streamlit run Home.py
+
+🌐 Useful Links
+
+GitHub Repository
+https://github.com/neonewton/PUBLIC_AutoTool-LAMS-Elentra
+
+Streamlit Cloud (Bulk Excel Generation)
+https://autotool-ilams-elentrav2.streamlit.app/
+
+Python (Official Download)
+https://www.python.org/downloads/
+
+Chrome & Chrome WebDriver
+https://googlechromelabs.github.io/chrome-for-testing/
