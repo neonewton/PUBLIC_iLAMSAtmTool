@@ -13,7 +13,8 @@ venv
 *.pkg
 *.exe
 
-
+chromedriver-mac-arm64/
+chromedriver
 
 ~/logs
 venv/
