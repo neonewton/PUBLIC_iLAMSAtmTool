@@ -13,13 +13,13 @@ Before starting, download and install the following:
 
 - **Google Chrome & Chrome WebDriver**  
 - **Project files**
-  - Download the relevant Python packages and Chrome WebDriver from:
-  https://googlechromelabs.github.io/chrome-for-testing/
-    - `2_Windows/` : win64 **or**
-    - `2_MacOS/` : mac-arm64
+Download the relevant Python packages and Chrome WebDriver from:
+https://googlechromelabs.github.io/chrome-for-testing/
+  - `2_Windows/` : win64 **or**
+  - `2_MacOS/` : mac-arm64
 
-  For webdriver directory, place it together with the downloaded project folder. 
-  Place the folder "Chromedriver-..." together with "1_Elentra_iLAMS_atm_tool_V6" under "Webdrivers"
+For webdriver directory, place it together with the downloaded project folder. 
+Place the folder "Chromedriver-..." together with "1_Elentra_iLAMS_atm_tool_V6" under "Webdrivers"
 ---
 
 ## 📂 Recommended Folder Location (Optional)
@@ -27,7 +27,7 @@ Before starting, download and install the following:
 > **Tip:**  
 > Open Terminal (macOS) or PowerShell (Windows) from this directory before running any commands.
 > For consistency and fewer path issues, place the project under:
-~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
+> ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
 
 ---
 
@@ -51,32 +51,8 @@ cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 ---
 ## Step 3: Setup & Run
 
-### macOS Setup & Run
+Copy and paste the following commands from **1_commands_macos.txt**, or **1_commands_windows.txt**, or run directly:
 
-Copy and paste the following commands from **1_commands_macos.txt**, or run directly:
-
-```bash
-python3.13 -m venv venv
-source venv/bin/activate
-
-pip install --upgrade pip
-pip install -r requirements.txt
-
-streamlit run Home.py
-```
-
-### Windows Setup & Run
-
-Copy and paste the following commands from **1_commands_windows.txt**, or run directly:
-```bash
-py -3.13 -m venv venv
-.\venv\Scripts\Activate
-
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-
-streamlit run Home.py
-```
 ---
 
 ## Step 4: Subsequent Runs
@@ -85,13 +61,15 @@ After the first setup, you only need to:
 
 ### MacOS
 ```bash
+### Open the folder "1_Elentra_iLAMS_atm_tool_V6" in Terminal ###
 source venv/bin/activate
 streamlit run Home.py
 ```
 
 ### Windows
 ```bash
-.\venv\Scripts\Activate.ps1
+### Open the folder "1_Elentra_iLAMS_atm_tool_V6" in Terminal ###
+venv\Scripts\Activate
 streamlit run Home.py
 ```
 ---
