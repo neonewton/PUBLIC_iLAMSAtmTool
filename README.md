@@ -33,7 +33,7 @@ Before starting, download and install the following:
 
 ## 📂 Recommended Folder Location (Optional)
 
-> #### **Tip:**  
+> #### **Tips:**  
 > - Open Terminal (macOS) or PowerShell (Windows) from this directory before running any commands.
 > - For consistency and fewer path issues, place the project under:
 > - ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6.
@@ -68,14 +68,14 @@ cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 
 After the first setup, you only need to:
 
-### MacOS
+#### MacOS:
 ```bash
 ### Open the folder "1_Elentra_iLAMS_atm_tool_V6" in Terminal ###
 source venv/bin/activate
 streamlit run Home.py
 ```
 
-### Windows
+#### Windows:
 ```bash
 ### Open the folder "1_Elentra_iLAMS_atm_tool_V6" in Terminal ###
 venv\Scripts\Activate
