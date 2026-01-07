@@ -23,8 +23,8 @@ https://googlechromelabs.github.io/chrome-for-testing/
 ## 📥 Prerequisites
 
 Before starting, download and install the following:
-### `2_Windows/` : win64 **or**
-### `2_MacOS/` : mac-arm64
+### Windows : win64 **or**
+### MacOS : mac-arm64
 
 - **Python at least 3.11 or newer**  
   https://www.python.org/downloads/
@@ -35,8 +35,8 @@ Download the relevant Python packages and Chrome WebDriver from:
 https://googlechromelabs.github.io/chrome-for-testing/
  
 
-For webdriver directory, place it together with the downloaded project folder. 
-Place the folder "Chromedriver-..." together with "1_Elentra_iLAMS_atm_tool_V6" under "Webdrivers"
+### For webdriver directory, place it together with the downloaded project folder. 
+### Place the folder "Chromedriver-..." together with "1_Elentra_iLAMS_atm_tool_V6" under "Webdrivers"
 ---
 
 ## 📂 Recommended Folder Location (Optional)
@@ -68,7 +68,7 @@ cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 ---
 ## Step 3: Setup & Run
 
-  Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
+### Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
 ---
 
 ## Step 4: Subsequent Runs
