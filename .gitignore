@@ -12,6 +12,7 @@ venv
 2_Windows/*.zip
 *.pkg
 *.exe
+.devcontainer
 
 chromedriver-mac-arm64/
 chromedriver
