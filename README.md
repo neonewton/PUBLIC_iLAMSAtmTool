@@ -4,6 +4,22 @@ This guide helps first-time users run the **iLAMS–Elentra Automation Tool** lo
 
 ---
 
+### 🌐 Useful Links
+
+GitHub Repository
+https://github.com/neonewton/PUBLIC_AutoTool-LAMS-Elentra
+
+Streamlit Cloud (Bulk Excel Generation)
+https://autotool-ilams-elentrav2.streamlit.app/
+
+Python (Official Download)
+https://www.python.org/downloads/
+
+Chrome & Chrome WebDriver
+https://googlechromelabs.github.io/chrome-for-testing/
+
+---
+
 ## 📥 Prerequisites
 
 Before starting, download and install the following:
@@ -51,8 +67,7 @@ cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 ---
 ## Step 3: Setup & Run
 
-Copy and paste the following commands from **1_commands_macos.txt**, or **1_commands_windows.txt**, or run directly:
-
+Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
 ---
 
 ## Step 4: Subsequent Runs
@@ -72,19 +87,5 @@ streamlit run Home.py
 venv\Scripts\Activate
 streamlit run Home.py
 ```
----
 
-### 🌐 Useful Links
-
-GitHub Repository
-https://github.com/neonewton/PUBLIC_AutoTool-LAMS-Elentra
-
-Streamlit Cloud (Bulk Excel Generation)
-https://autotool-ilams-elentrav2.streamlit.app/
-
-Python (Official Download)
-https://www.python.org/downloads/
-
-Chrome & Chrome WebDriver
-https://googlechromelabs.github.io/chrome-for-testing/
 
