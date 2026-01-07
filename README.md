@@ -36,9 +36,9 @@ Before starting, download and install the following:
 > #### **Tip:**  
 > - Open Terminal (macOS) or PowerShell (Windows) from this directory before running any commands.
 > - For consistency and fewer path issues, place the project under:
-> - ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
-> - For webdriver directory, place it together with the downloaded GitHub Project Folder
-> - Place the folder Chromedriver folder under "Webdrivers" in the "1_Elentra_iLAMS_atm_tool_V6" folder
+> - ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6.
+> - For webdriver directory, place it together with the downloaded project folder.
+> - Place the folder Chromedriver folder under "Webdrivers" in the "1_Elentra_iLAMS_atm_tool_V6" folder.
 
 ---
 
@@ -60,11 +60,11 @@ cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
 
 ```
 ---
-## Step 3: Setup & Run
+### Step 3: Setup & Run
 - Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
 ---
 
-## 🔁 Step 4: Subsequent Runs
+### 🔁 **Step 4: Subsequent Runs** 🔁
 
 After the first setup, you only need to:
 
