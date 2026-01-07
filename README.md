@@ -42,7 +42,7 @@ Before starting, download and install the following:
 
 ---
 
-## ▶️ How to Run (First Time)
+### ▶️ How to Run (First Time)
 
 ### Step 1: Open project folder using a terminal
 
@@ -55,7 +55,7 @@ Before starting, download and install the following:
 - Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
 ---
 
-### 🔁 **Step 3: Subsequent Runs** 🔁
+## 🔁 **Step 3: Subsequent Runs** 🔁
 
 After the first setup, you only need to:
 
