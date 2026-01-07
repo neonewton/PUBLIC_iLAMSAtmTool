@@ -3,13 +3,33 @@
 import os 
 from dataclasses import dataclass
 from typing import Optional
+from pathlib import Path
+import os
+
+# def default_driver_path() -> str:
+#     if os.name == "nt":  # Windows
+#         return r"C:\WebDrivers\chromedriver-win64\chromedriver.exe"
+#     else:  # macOS or Linux
+#         return os.path.expanduser(
+#             "~/WebDrivers/chromedriver-mac-arm64/chromedriver"
+#         )
 
 def default_driver_path() -> str:
-    if os.name == "nt":   # Windows
-        return r"C:\WebDrivers\chromedriver-win64\chromedriver.exe"
-    else:                 # macOS or Linux
-        return r"/Users/neltontan/Driver/chromedriver-mac-arm64/chromedriver"
-        # return r"/Users/{username}/Driver/chromedriver-mac-arm64/chromedriver"
+
+    # Absolute path to this file (config.py / selenium_utils.py)
+    base_dir = Path(__file__).resolve().parent
+
+    # If this file is inside /core, go one level up to project root
+    project_root = base_dir.parent
+
+    if os.name == "nt":  # Windows
+        driver_path = project_root / "WebDrivers" / "chromedriver-win64" / "chromedriver.exe"
+    else:  # macOS / Linux
+        driver_path = project_root / "WebDrivers" / "chromedriver-mac-arm64" / "chromedriver"
+
+    return str(driver_path)
+
+
 @dataclass
 class SeleniumConfig:
     driver_path: str = default_driver_path()

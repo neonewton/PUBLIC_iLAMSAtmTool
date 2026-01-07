@@ -128,7 +128,7 @@ else:
 if logs:
     df_logs = pd.DataFrame(logs)
     st.subheader("Pre-check Logs")
-    st.dataframe(df_logs, width='Stretch')
+    st.dataframe(df_logs, width='stretch')
 
 st.markdown("---")
 
