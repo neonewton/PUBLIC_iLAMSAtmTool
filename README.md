@@ -44,27 +44,18 @@ Before starting, download and install the following:
 
 ## ▶️ How to Run (First Time)
 
-### Step 1: Open a terminal
+### Step 1: Open project folder using a terminal
 
 - **macOS:** `Terminal.app`
 - **Windows:** 'Terminal'
 
 ---
 
-### Step 2: Navigate to the project directory
-
-Example:
-
-```bash
-cd ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/_Elentra_iLAMS_atm_tool_V6
-
-```
----
-### Step 3: Setup & Run
+### Step 2: Setup & Run
 - Copy and paste the following commands from **1_commands_macos.txt** or **1_commands_windows.txt**
 ---
 
-### 🔁 **Step 4: Subsequent Runs** 🔁
+### 🔁 **Step 3: Subsequent Runs** 🔁
 
 After the first setup, you only need to:
 
