@@ -28,17 +28,17 @@ Before starting, download and install the following:
 - **Python at least 3.11 or newer**  
 - **Google Chrome & Chrome WebDriver**  
 - **This GitHub zipped Project files**
-### **Note**
-- For webdriver directory, place it together with the downloaded project folder. 
-- Place the folder "Chromedriver-..." together with "1_Elentra_iLAMS_atm_tool_V6" under "Webdrivers"
+
 ---
 
 ## 📂 Recommended Folder Location (Optional)
 
-> **Tip:**  
+> #### **Tip:**  
 > - Open Terminal (macOS) or PowerShell (Windows) from this directory before running any commands.
 > - For consistency and fewer path issues, place the project under:
 > - ~/Documents/GitHub/PUBLIC_AutoTool-LAMS-Elentra/1_Elentra_iLAMS_atm_tool_V6
+> - For webdriver directory, place it together with the downloaded GitHub Project Folder
+> - Place the folder Chromedriver folder under "Webdrivers" in the "1_Elentra_iLAMS_atm_tool_V6" folder
 
 ---
 
