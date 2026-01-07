@@ -44,7 +44,7 @@ def test_staff_invalid_email_is_skipped_not_crash():
     # Only valid NTU email should be present
     df = read_xls(zf, "NewUsers_")
     assert len(df) == 1
-    assert df.loc[0, "* email"].endswith("@ntu.edu.sg")
+    assert str(df.loc[0, "* email"]).endswith("@ntu.edu.sg")
 
 
 def test_staff_users_xls_schema_and_values():
@@ -133,7 +133,7 @@ def test_student_invalid_email_skipped():
     df = read_xls(zf, "NewUsers_")
 
     assert len(df) == 1
-    assert df.loc[0, "* email"].endswith("@e.ntu.edu.sg")
+    assert str(df.loc[0, "* email"]).endswith("@e.ntu.edu.sg")
 
 
 # -------------------------------------------------

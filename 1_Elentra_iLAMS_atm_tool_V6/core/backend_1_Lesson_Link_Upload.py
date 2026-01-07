@@ -2,7 +2,7 @@
 
 
 import re
-from typing import Dict, List, Union, IO, Callable
+from typing import Dict, List, Any, Union, IO, Callable
 import time
 from datetime import datetime
 

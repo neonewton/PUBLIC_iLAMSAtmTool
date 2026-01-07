@@ -19,8 +19,6 @@ st.set_page_config(
 )
 
 
-
-
 st.title("Elentra & iLAMS Automation Tool Configuration")
 
 st.markdown(

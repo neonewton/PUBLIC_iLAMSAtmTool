@@ -10,34 +10,87 @@ def apply_ntu_purple_theme():
         .stApp {
             background-color: #EEF2F6;
             color: #1F2937;
-        }
+    }
 
         /* ===== Top Header Bar ===== */
         header[data-testid="stHeader"] {
             background-color: #5A003E; /* NTU / LKC purple */
             height: 70px;
+            position: relative;
         }
 
+        /* Custom NTU title (non-blocking) */
         header[data-testid="stHeader"]::before {
             content: "NANYANG TECHNOLOGICAL UNIVERSITY  |  LEE KONG CHIAN SCHOOL OF MEDICINE";
-            color: white;
+
+            position: absolute;
+            left: 48px;
+            top: 0;
+
+            height: 70px;
+            display: flex;
+            align-items: center;
+
+            color: #FFFFFF;
             font-weight: 600;
             font-size: 16px;
-            padding-left: 24px;
-            line-height: 70px;
-            display: block;
+
+            pointer-events: none;  /* 🔑 THIS IS THE KEY */
         }
 
-        /* Hide default Streamlit header content */
-        header[data-testid="stHeader"] > div {
-            display: none;
+        /* Keep toolbar but make icons white */
+        header[data-testid="stHeader"] span[data-testid="stIconMaterial"] {
+            color: #FFFFFF !important;
         }
 
-        /* ===== Sidebar ===== */
+        /* Optional: hide Streamlit menu dots but keep arrow */
+        header[data-testid="stHeader"] [data-testid="stToolbar"] {
+            opacity: 0.85;
+        }
+
+        /* ===== Sidebar container ===== */
         section[data-testid="stSidebar"] {
-            background-color: #FFFFFF;
-            border-right: 1px solid #E5E7EB;
+            background-color: #5A003E;
+            border-right: 0px solid #E5E7EB;
         }
+
+        /* Sidebar text */
+        section[data-testid="stSidebar"] * {
+            color: #FFFFFF !important;
+        }
+
+        /* Sidebar labels */
+        section[data-testid="stSidebar"] label {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        /* Page links */
+        section[data-testid="stSidebar"] a {
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        /* Active page */
+        section[data-testid="stSidebar"] a[aria-current="page"] {
+            background-color: rgba(255, 255, 255, 0.18);
+            font-weight: 600;
+        }
+
+
+        /* ===== Hover effect ===== */
+        section[data-testid="stSidebar"] a:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ===== Active page (current selection) ===== */
+        section[data-testid="stSidebar"] a[aria-current="page"] {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #FFFFFF !important;
+            font-weight: 600;
+        }
+
 
         /* ===============================
         NUMBER INPUT

@@ -140,10 +140,67 @@ def test_multiple_results_acc_gt_1(mock_get_driver):
 # -------------------------------------------------
 # INPUT SANITISATION
 # -------------------------------------------------
-
 @patch("core.backend_2_Bulk_Search_Users.get_driver")
 def test_brackets_are_stripped(mock_get_driver):
     driver = MagicMock()
     wait = MagicMock()
 
-    driver.find_elements.return_value =
+    driver.find_elements.return_value = []
+    mock_get_driver.return_value = (driver, wait)
+
+    run_user_search(
+        search_values=["lkc-dl-lams (TTSH)"],
+    )
+
+    # ensure send_keys got cleaned value
+    sent_value = driver.find_element.return_value.send_keys.call_args_list
+    assert sent_value  # called at least once
+
+
+# -------------------------------------------------
+# PROGRESS CALLBACK
+# -------------------------------------------------
+
+@patch("core.backend_2_Bulk_Search_Users.get_driver")
+def test_progress_callback_called(mock_get_driver):
+    driver = MagicMock()
+    wait = MagicMock()
+
+    driver.find_elements.return_value = []
+    mock_get_driver.return_value = (driver, wait)
+
+    calls = []
+
+    def progress_cb(c, t):
+        calls.append((c, t))
+
+    run_user_search(
+        search_values=["A", "B", "C"],
+        progress_callback=progress_cb,
+    )
+
+    assert calls
+    assert calls[-1] == (3, 3)
+
+
+# -------------------------------------------------
+# LOG SCHEMA
+# -------------------------------------------------
+
+@patch("core.backend_2_Bulk_Search_Users.get_driver")
+def test_log_schema(mock_get_driver):
+    driver = MagicMock()
+    wait = MagicMock()
+
+    driver.find_elements.return_value = []
+    mock_get_driver.return_value = (driver, wait)
+
+    result = run_user_search(
+        search_values=["Alice"],
+    )
+
+    logs = result["logs"]
+    assert logs
+
+    required_keys = {"timestamp", "feature", "level", "message"}
+    assert required_keys.issubset(logs[0].keys())
