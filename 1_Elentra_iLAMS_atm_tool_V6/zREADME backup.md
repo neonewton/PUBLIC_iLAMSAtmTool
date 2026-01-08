@@ -11,7 +11,7 @@ source venv/bin/activate
 python3 -V
 
 # Install Required Packages
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 pip install --upgrade pip
 
