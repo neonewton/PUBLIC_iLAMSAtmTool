@@ -1,0 +1,14 @@
+# copy and paste to terminal or powershell
+
+#Windows
+
+open folder with Windows Terminal
+python -m venv venv
+venv\Scripts\activate
+
+pip install --upgrade pip
+pip install -r requirements.txt
+
+streamlit run Home.py
+
+ctrl + C to kill the connection

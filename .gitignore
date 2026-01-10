@@ -1,0 +1,14 @@
+
+__pycache__/
+*.pyc
+.DS_Store
+.env
+venv
+*.sqlite
+*.zip
+
+~/logs
+
+Webdrivers/
+
+venv/
