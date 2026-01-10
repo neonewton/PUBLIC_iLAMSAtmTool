@@ -37,11 +37,11 @@ if "archive_df" not in st.session_state:
     st.session_state["archive_df"] = None
 
 excluded_text = st.text_area(
-    "Excluded Course IDs (comma-separated)",
+    "Insert the Excluded Course IDs (comma-separated) that you wish NOT to archive",
     value="104, 509, 610, 629, 630, 631, 632, 633, 634, 635, 636, 637",
 )
 
-dry_run = st.checkbox("Dry-run (simulate only, no changes saved)", value=True)
+dry_run = st.checkbox("Dry-run ( Simulate only, no changes saved )", value=True)
 max_courses = st.number_input(
     "Max courses to process",
     min_value=1,

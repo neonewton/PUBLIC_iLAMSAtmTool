@@ -7,10 +7,10 @@ xlwt
 
 pytest
 
-# pyinstaller
-
-# pip install -r requirements.txt
-
 ollama
 faiss-cpu
 numpy
+sentence-transformers
+
+# pyinstaller
+# pip install -r requirements.txt

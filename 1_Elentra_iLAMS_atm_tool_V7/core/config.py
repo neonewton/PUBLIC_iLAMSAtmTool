@@ -17,7 +17,7 @@ import os
 def default_driver_path() -> str:
 
     # Absolute path to this file (config.py / selenium_utils.py)
-    base_dir = Path(__file__).resolve().parent
+    base_dir = Path(__file__).resolve().parent.parent
 
     # If this file is inside /core, go one level up to project root
     project_root = base_dir.parent
