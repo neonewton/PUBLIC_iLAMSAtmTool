@@ -9,6 +9,9 @@ venv
 .devcontainer
 *.sqlite
 
+.spec
+*.spec
+
 ~/logs
 
 venv/
