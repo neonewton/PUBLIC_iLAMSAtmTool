@@ -20,7 +20,7 @@ def default_driver_path() -> str:
     base_dir = Path(__file__).resolve().parent
 
     # If this file is inside /core, go one level up to project root
-    project_root = base_dir.parent
+    project_root = base_dir.parent.parent
 
     if os.name == "nt":  # Windows
         driver_path = project_root / "WebDrivers" / "chromedriver-win64" / "chromedriver.exe"
