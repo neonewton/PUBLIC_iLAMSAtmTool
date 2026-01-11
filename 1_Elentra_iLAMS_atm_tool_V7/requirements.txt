@@ -11,6 +11,12 @@ ollama
 faiss-cpu
 numpy
 sentence-transformers
+docling
+pytesseract 
+pdf2image 
+pillow
+tesseract 
+poppler-utils
 
 # pyinstaller
 # pip install -r requirements.txt

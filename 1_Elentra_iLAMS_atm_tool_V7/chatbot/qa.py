@@ -116,7 +116,6 @@ class KnowledgeAssistant:
         - Do NOT make assumptions
         - Do NOT fabricate examples, tools, workflows, or policies
 
-
         OUTPUT RULES
         - Use bullet points
         - Keep explanations concise and beginner-friendly

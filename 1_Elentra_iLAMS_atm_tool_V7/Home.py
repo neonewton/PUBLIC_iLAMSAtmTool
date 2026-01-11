@@ -7,6 +7,9 @@ from core.config import get_config, set_config
 from core.selenium_utils import check_selenium_environment
 from core.selenium_utils import launch_chrome_with_debug
 
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 from core.theme import apply_ntu_purple_theme
 from core.theme import apply_claude_theme
 apply_ntu_purple_theme()
