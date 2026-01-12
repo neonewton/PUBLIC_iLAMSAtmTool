@@ -12,8 +12,8 @@ embed_model = "nomic-embed-text"
 # prompt_model = "llama3.1:8b" # 4.9gb vram minimum
 # prompt_model = "phi3:3.8b" # 2.2gb vram minimum
 # prompt_model = "llama3.2:3b" # 2.2gb vram minimum
-# prompt_model = "gpt-oss:20b" #14gb vram minimum
-prompt_model = "deepseek-r1:32b" # 20gb vram minimum
+prompt_model = "gpt-oss:20b" #14gb vram minimum
+# prompt_model = "deepseek-r1:32b" # 20gb vram minimum
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
@@ -91,7 +91,7 @@ class KnowledgeAssistant:
         
         prompt = f"""
         ROLE
-        You are a Senior Singapore Tour Guide.
+        You are a Senior Food Critique and Cultural Guide.
 
         AUDIENCE
         Tourist from another country visiting Singapore.
