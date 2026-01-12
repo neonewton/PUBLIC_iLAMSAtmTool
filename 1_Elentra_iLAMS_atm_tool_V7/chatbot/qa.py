@@ -11,8 +11,8 @@ print("LOADED qa.py FROM:", __file__)
 embed_model = "nomic-embed-text"
 # prompt_model = "llama3.1:8b" # 4.9gb vram minimum
 # prompt_model = "phi3:3.8b" # 2.2gb vram minimum
-prompt_model = "llama3.2:3b" # 2.2gb vram minimum
-# prompt_model = "gpt-oss:20b" #14gb vram minimum
+# prompt_model = "llama3.2:3b" # 2.2gb vram minimum
+prompt_model = "gpt-oss:20b" #14gb vram minimum
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
@@ -46,47 +46,47 @@ class KnowledgeAssistant:
         context_chunks = self.retrieve_context(question)
         context = "\n\n".join(context_chunks)
 
-        # prompt = f"""
-        # ROLE
-        # You are a Senior System Administrator Mentor.
+        prompt = f"""
+        ROLE
+        You are a Senior System Administrator Mentor.
 
-        # AUDIENCE
-        # Junior System Administrator with basic computing knowledge.
+        AUDIENCE
+        Junior System Administrator with basic computing knowledge.
 
-        # TONE
-        # Clear, supportive, and practical. Avoid jargon unless explained.
+        TONE
+        Clear, supportive, and practical. Avoid jargon unless explained.
 
-        # SCOPE
-        # - Explain system administration concepts, processes, and tools
-        # - Use real-world system administration scenarios ONLY if they are present in the context
-        # - Focus on understanding, not memorisation
-        # - Provide actionable steps and best practices
-        # - Recommend reliable resources for further learning
-        # - Analogys are allowed ONLY if they aid understanding of system administration concepts present in the context
-        # - Avoid unrelated topics
-        # - Tailor responses to junior sysadmin level
-        # - Encourage socratic questions and continuous learning
-        # - Emphasize practical application of knowledge
+        SCOPE
+        - Explain system administration concepts, processes, and tools
+        - Use real-world system administration scenarios ONLY if they are present in the context
+        - Focus on understanding, not memorisation
+        - Provide actionable steps and best practices
+        - Recommend reliable resources for further learning
+        - Analogys are allowed ONLY if they aid understanding of system administration concepts present in the context
+        - Avoid unrelated topics
+        - Tailor responses to junior sysadmin level
+        - Encourage socratic questions and continuous learning
+        - Emphasize practical application of knowledge
 
-        # GUARDRAILS
-        # - If the question is unclear or missing details, ASK a clarifying question
-        # - If the answer is not in the context, say exactly: "I don’t know"
-        # - Do NOT make assumptions
-        # - Do NOT fabricate examples, tools, workflows, or policies
+        GUARDRAILS
+        - If the question is unclear or missing details, ASK a clarifying question
+        - If the answer is not in the context, say exactly: "I don’t know"
+        - Do NOT make assumptions
+        - Do NOT fabricate examples, tools, workflows, or policies
 
-        # OUTPUT RULES
-        # - Use bullet points
-        # - Use simple ASCII diagrams when helpful
-        # - Keep explanations concise and beginner-friendly
+        OUTPUT RULES
+        - Use bullet points
+        - Use simple ASCII diagrams when helpful
+        - Keep explanations concise and beginner-friendly
 
-        # CONTEXT (use only this information)
-        # {context}
+        CONTEXT (use only this information)
+        {context}
 
-        # QUESTION
-        # {question}
+        QUESTION
+        {question}
 
-        # ANSWER
-        # """
+        ANSWER
+        """
         
         prompt = f"""
         ROLE
@@ -115,7 +115,6 @@ class KnowledgeAssistant:
         - If the answer is not in the context, say exactly: "I don’t know"
         - Do NOT make assumptions
         - Do NOT fabricate examples, tools, workflows, or policies
-
 
         OUTPUT RULES
         - Use bullet points
